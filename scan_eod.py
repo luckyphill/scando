@@ -1,65 +1,80 @@
 import csv
-import operator
-import copy
-import os
 import requests
 from bs4 import BeautifulSoup
 
-import webbrowser
 import time
 import datetime as dt
+#Need to implement a log file
 
-codes = []
-with open("Watch_list.csv", 'rU') as csvfile:
-	codes_reader = csv.reader(csvfile, dialect='excel')
-	for code in codes_reader:
-		codes.append(code[0])
+def scan(log_file = False):
+	codes = []
+	with open("Watch_list.csv", 'rU') as csvfile:
+		codes_reader = csv.reader(csvfile, dialect='excel')
+		for code in codes_reader:
+			codes.append(code[0])
 
-bigcharts_url = 'http://bigcharts.marketwatch.com/quickchart/quickchart.asp?symb=AU%3A'
-bigcharts_extra = '&insttype=Stock&freq=1&show=&time=8'
+	bigcharts_url = 'http://bigcharts.marketwatch.com/quickchart/quickchart.asp?symb=AU%3A'
+	bigcharts_extra = '&insttype=Stock&freq=1&show=&time=8'
 
-for code in codes:
-	# page = home_url + code + page_detail
-	page = bigcharts_url + code + bigcharts_extra
-	print "\nRetrieving data for " + code
-	print page
-	response = requests.get(page)
-	html = response.content
-	soup = BeautifulSoup(html, "xml")
-	table = soup.find('table', id="quote")
-	temp_data = []
-	for row in table.findAll('tr'):
-		for cell in row.findAll('td'):
-			temp_data.append(cell.text)
-	
-	# clean the data according to how the website presented it
-	date = temp_data[1].split(' ')[0]
-	open_p = temp_data[9].split('\n')[2]
-	high = temp_data[10].split('\n')[2]
-	low = temp_data[11].split('\n')[2]
-	close = temp_data[7].split('\n')[2]
-	vol = temp_data[12].split('\n')[2].replace(',', '')
+	for code in codes:
+		log_file.write(str(dt.datetime.now()) + " Checking current data for " + code + "\n")
+		file_name = "stock_data/" + code + ".csv"
 
-	[month,day,year] = date.split('/')
-	proper_date = year + month.zfill(2) + day.zfill(2)
+		with open(file_name, 'r') as csvfile:
+			reader = csv.reader(csvfile, delimiter=',')
+			last_entry = list(reader)[-1]
 
-	# all neatly tabulated ready for writing
-	eod_data = [proper_date, open_p, high, low, close, vol]
+		if last_entry[0] == dt.date.today().strftime ("%Y%m%d"): # make sure we haven't already got today's data
+			
+			log_file.write(str(dt.datetime.now()) + " Data appears to be up to date.\n")
+		
+		elif last_entry[0] < dt.date.today().strftime ("%Y%m%d"): # make sure we're adding the next date
 
-	print "Writing data for " + code
-	file_name = "stock_data/" + code + ".csv"
-	with open(file_name, 'a') as csvfile:
-		writer = csv.writer(csvfile, delimiter=',')
-		writer.writerow(eod_data)
+			log_file.write(str(dt.datetime.now()) + " Retrieving data\n")
+			page = bigcharts_url + code + bigcharts_extra
+			log_file.write(str(dt.datetime.now()) + " " + page + "\n")
+			response = requests.get(page)
+			html = response.content
+			soup = BeautifulSoup(html, "xml")
+			table = soup.find('table', id="quote")
 
-	print "Retrieval complete"
+			temp_data = []
+			for row in table.findAll('tr'):
+				for cell in row.findAll('td'):
+					temp_data.append(cell.text)
+			
+			# clean the data according to how the website presented it
+			date = temp_data[1].split(' ')[0]
+			open_p = temp_data[9].split('\n')[2]
+			high = temp_data[10].split('\n')[2]
+			low = temp_data[11].split('\n')[2]
+			close = temp_data[7].split('\n')[2]
+			vol = temp_data[12].split('\n')[2].replace(',', '')
+
+			[month,day,year] = date.split('/')
+			proper_date = year + month.zfill(2) + day.zfill(2)
+
+			# all neatly tabulated ready for writing
+			eod_data = [proper_date, open_p, high, low, close, vol]
+
+			# write the data to file
+			log_file.write(str(dt.datetime.now()) + " Writing data\n")
+			with open(file_name, 'a') as csvfile:
+				writer = csv.writer(csvfile, delimiter=',')
+				writer.writerow(eod_data)
+
+			log_file.write(str(dt.datetime.now()) + " Retrieval complete\n")
+		else:
+
+			log_file.write(str(dt.datetime.now()) + " Something has gone wrong, we appear to be adding old data.\n")
+
 
 # Yahoo code: Note no date is supplied on page and data may not agree with ASX
 # home_url = 'https://au.finance.yahoo.com/quote/'
 # page_detail = '.AX'
 # for code in codes:
 # 	page = home_url + code + page_detail
-# 	print page
+# 	log_file.write(str(dt.datetime.now()) + p age
 # 	response = requests.get(page)
 # 	html = response.content
 # 	soup = BeautifulSoup(html, "xml")
