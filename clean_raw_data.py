@@ -15,8 +15,9 @@ with open("Watch_list.csv", 'rU') as csvfile:
 
 stockPriceData = {}
 earliestYear = 2000
+latestYear = 2018
 dates = []
-for year in xrange(earliestYear, 2018):
+for year in xrange(earliestYear, latestYear):
 	for month in xrange(1,13):
 		for day in xrange(1,32):
 			dates.append(year * 10000 + month * 100 + day)
