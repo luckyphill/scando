@@ -21,59 +21,22 @@ If the website changes at all, then auto update will fail
 
 With the new data, it will run a technical analysis on all companies in Watch_list.txt and popup a notification if any buy or sell signals are generated
 
-
-
-
-
 Daemonising on MacOSX with supervisord
 http://supervisord.org/index.html
 https://stackoverflow.com/questions/9522324/running-python-in-background-on-os-x
-https://gist.github.com/fadhlirahim/78fefdfdf4b96d9ea9b8
 https://nicksergeant.com/running-supervisor-on-os-x/
 
 download the package: sudo easy_install supervisor
 
-To make supervisor un on start up, you need to make a plist file in:
+To make supervisor run on start up, you need to make a plist file in:
 ~/Library/LaunchAgents/com.agendaless.supervisord.plist
+This file is included in the github account, but may need modification fr different machines
 
-An example is given below ([1]) from the above linked github account:
-This example forces supervisord to look for it's conf file in 
+This plist forces supervisord to look for it's conf file in 
 /usr/local/share/supervisor/supervisord.conf
 Other options are
 /usr/local/share/etc/supervisord.conf
 /usr/local/share/supervisord.conf
-
-Next you need to add the file you want to run into the supervisord config file.
-In the 
-
-
-
-
-
-[1] - File to make supervisord run on startup
-<!-- /Library/LaunchDaemons/com.agendaless.supervisord.plist -->
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>KeepAlive</key>
-    <dict>
-        <key>SuccessfulExit</key>
-        <false/>
-    </dict>
-    <key>Label</key>
-    <string>com.agendaless.supervisord</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/local/bin/supervisord</string>
-        <string>-n</string> 
-        <string>-c</string>
-        <string>/usr/local/share/supervisor/supervisord.conf</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-</dict>
-</plist>
 
 
 

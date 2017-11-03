@@ -4,9 +4,9 @@ from bs4 import BeautifulSoup
 
 import time
 import datetime as dt
-#Need to implement a log file
 
 def scan(log_file = False):
+	# Scans the website http://bigcharts.marketwatch.com for the latest EoD data
 	codes = []
 	with open("Watch_list.csv", 'rU') as csvfile:
 		codes_reader = csv.reader(csvfile, dialect='excel')
@@ -67,6 +67,20 @@ def scan(log_file = False):
 		else:
 
 			log_file.write(str(dt.datetime.now()) + " Something has gone wrong, we appear to be adding old data.\n")
+
+def tech_update(log_file = False):
+	# Updates the technical analysis data files given the new data
+	codes = []
+	with open("Watch_list.csv", 'rU') as csvfile:
+		codes_reader = csv.reader(csvfile, dialect='excel')
+		for code in codes_reader:
+			codes.append(code[0])
+
+	# for each code, we want to look at the latest data and update the technical ananlysis files
+	# at the moment we have RSI and Bollinger bands
+
+def get_signals():
+	# Use the all the data to generate buy/sell signals and produce a notify the user
 
 
 # Yahoo code: Note no date is supplied on page and data may not agree with ASX

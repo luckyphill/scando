@@ -12,7 +12,7 @@ while(True):
 	hour = dt.datetime.now().hour
 	if day < 5 and hour > 16 and checked_date < date: # if we're on a weekday after 5pm and we haven't updated already
 		lf = open(log_file,'a')
-		scan_eod.scan(lf)
+		eod.scan(lf)
 		# run the technical eod update
 		# make a popup that points out signals
 		checked_date = date
