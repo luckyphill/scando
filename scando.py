@@ -1,18 +1,22 @@
+#!/usr/bin/python
 import time
 import datetime as dt
 import eod
 import os
 
-log_file = 'scando.log'
+path = "/Users/manda/Shares/"
+log_file = path + 'scando.log'
 checked_date = dt.date(2000,1,1) #initial date for when scando is first started
 log_size_limit = 1000000 #about 10Mb
+# with open(log_file,'a') as lf:
+# 	lf.write("We've gotten this far")
 while(True):
 	date = dt.date.today()
 	day = dt.date.today().weekday()
 	hour = dt.datetime.now().hour
 	if day < 5 and hour > 16 and checked_date < date: # if we're on a weekday after 5pm and we haven't updated already
 		lf = open(log_file,'a')
-		eod.scan(lf)
+		eod.scan(path, lf)
 		# run the technical eod update
 		# make a popup that points out signals
 		checked_date = date

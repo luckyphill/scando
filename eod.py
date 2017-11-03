@@ -5,10 +5,12 @@ from bs4 import BeautifulSoup
 import time
 import datetime as dt
 
-def scan(log_file = False):
+
+def scan(path, log_file = False):
 	# Scans the website http://bigcharts.marketwatch.com for the latest EoD data
 	codes = []
-	with open("Watch_list.csv", 'rU') as csvfile:
+	code_file = path + "Watch_list.csv"
+	with open(code_file, 'rU') as csvfile:
 		codes_reader = csv.reader(csvfile, dialect='excel')
 		for code in codes_reader:
 			codes.append(code[0])
@@ -18,7 +20,7 @@ def scan(log_file = False):
 
 	for code in codes:
 		log_file.write(str(dt.datetime.now()) + " Checking current data for " + code + "\n")
-		file_name = "stock_data/" + code + ".csv"
+		file_name = path + "stock_data/" + code + ".csv"
 
 		with open(file_name, 'r') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',')
@@ -68,10 +70,11 @@ def scan(log_file = False):
 
 			log_file.write(str(dt.datetime.now()) + " Something has gone wrong, we appear to be adding old data.\n")
 
-def tech_update(log_file = False):
+def tech_update(path, log_file = False):
 	# Updates the technical analysis data files given the new data
 	codes = []
-	with open("Watch_list.csv", 'rU') as csvfile:
+	code_file = path + "Watch_list.csv"
+	with open(code_file, 'rU') as csvfile:
 		codes_reader = csv.reader(csvfile, dialect='excel')
 		for code in codes_reader:
 			codes.append(code[0])
@@ -79,7 +82,7 @@ def tech_update(log_file = False):
 	# for each code, we want to look at the latest data and update the technical ananlysis files
 	# at the moment we have RSI and Bollinger bands
 
-def get_signals():
+#def get_signals():
 	# Use the all the data to generate buy/sell signals and produce a notify the user
 
 
