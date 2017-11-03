@@ -1,11 +1,11 @@
 import time
 import datetime as dt
-import scan_eod
+import eod
 import os
 
 log_file = 'scando.log'
-checked_date = dt.date(2000,1,1)
-log_size_limit = 1000000
+checked_date = dt.date(2000,1,1) #initial date for when scando is first started
+log_size_limit = 1000000 #about 10Mb
 while(True):
 	date = dt.date.today()
 	day = dt.date.today().weekday()
@@ -13,11 +13,10 @@ while(True):
 	if day < 5 and hour > 16 and checked_date < date: # if we're on a weekday after 5pm and we haven't updated already
 		lf = open(log_file,'a')
 		scan_eod.scan(lf)
-		# run scan_eod.py
 		# run the technical eod update
 		# make a popup that points out signals
 		checked_date = date
-		lf.write(str(dt.datetime.now()) + " Done for the day, sleeping...")
+		lf.write(str(dt.datetime.now()) + " Done for the day, sleeping...\n")
 		lf.close()
 
 		#clean the log file
@@ -30,4 +29,4 @@ while(True):
 			os.remove(log_file)
 			os.rename("temp.log", log_file)
 
-	time.sleep(1000)
+	time.sleep(3600) # check once an hour
