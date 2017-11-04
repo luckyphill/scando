@@ -7,6 +7,7 @@ import os
 # Need to specify full paths for supervisord otherwise get errors
 path 			= "/Users/manda/Shares/"
 log_file 		= path + 'scando.log'
+watch_list 		= path + 'Watch_list.csv'
 checked_date 	= dt.date(2000,1,1) #initial date for when scando is first started
 log_size_limit 	= 1000000 #about 10Mb
 
@@ -19,25 +20,17 @@ while(True):
 		
 		lf = open(log_file,'a')
 		
-		eod.scan(path, lf)
-		eod.tech_update(path, lf)
+		codes = eod.get_codes(watch_list)
+		eod.scan(codes, path, lf)
+		eod.tech_update(codes, path, lf)
 		
-		# run the technical eod update
 		# make a popup that points out signals
-		checked_date = date
+		
 		lf.write(str(dt.datetime.now()) + " Done for the day, sleeping...\n")
 		lf.close()
 
-		#clean the log file
-		if (os.path.getsize(log_file) > log_size_limit):
-			
-			with open(log_file,'r') as lf, open("temp.log" ,"w") as out:
-				#only write the last half
-				lf.seek(int(log_size_limit/2))
-				for line in lf:
-					out.write(line)
+		eod.clean_log(log_file, log_size_limit)
+		checked_date = date
+		
 
-			os.remove(log_file)
-			os.rename("temp.log", log_file)
-
-	time.sleep(3600) # check once an hour
+	time.sleep(900) # check every 15 minutes

@@ -1,2 +1,4 @@
 scando.log
+TEST_scando.log
 *_data/
+*.pyc

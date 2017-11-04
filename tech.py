@@ -19,7 +19,6 @@ with open("Watch_list.csv", 'rU') as csvfile:
 
 stockPriceData = {}
 for code in codes:
-	# code = 'CBA'
 	stockPriceData[code] = []
 	file_name = "stock_data/" + code + ".csv"
 	with open(file_name, 'rU') as csvfile:
