@@ -8,10 +8,10 @@ import init
 
 
 # Need to specify full paths for supervisord otherwise get errors
-path 			= "/Users/manda/Shares/"
+path 			= "/Users/Manda/scando/"
 log_file 		= path + 'TEST_scando.log'
 watch_list 		= path + 'Watch_list.csv'
-lf 				= open(log_file, 'a')
+lf 				= open(log_file, 'a+')
 earliestDate 	= 20000101
 num_days		= 10 #testing variable
 
@@ -23,8 +23,8 @@ num_days		= 10 #testing variable
 
 
 codes = ['1AA'] # all testing done with code 1AA - this puts it at the top of the folder
-
-init.init_from_historical(codes, earliestDate, path) # Takes the raw stock_data and turns it into technical data
+for code in codes:
+	init.init_historical(code, earliestDate, path) # Takes the raw stock_data and turns it into technical data
 
 #================================================================
 # Make a place to "scan" from

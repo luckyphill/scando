@@ -178,10 +178,22 @@ def ema_new_data(quote_list, ema_prev_data):
 	period 				= float(ema_prev_data[0][0])
 	prev_data			= [float(i) for i in ema_prev_data[-1]]
 
-	ema					= (prev_data[1]*(period -1 ) + float(quote_list[-1][4]))/period
+	ema					= (prev_data[1]*(period - 1) + float(quote_list[-1][4]))/period
 
 	return [latest_quote_date, ema]
 
+def macd_new_data(quote_list, macd_prev_data):
+	# make two emas with 9 and 21 and take the difference
+	latest_quote_date	= quote_list[-1][0]
+	period_short		= float(ema_prev_data[0][0])
+	period_long			= float(ema_prev_data[0][1])
+	
+	prev_data			= [float(i) for i in ema_prev_data[-1]]
+
+	ema_short			= (prev_data[1]*(period_short - 1) + float(quote_list[-1][4]))/period_short
+	ema_long			= (prev_data[2]*(period_long - 1) + float(quote_list[-1][4]))/period_long
+
+	return [latest_quote_date, ema_short, ema_long, macd]
 #=============================================================================
 # Old code that I'm not comfortable enough yet to delete
 #=============================================================================
