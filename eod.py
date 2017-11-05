@@ -13,6 +13,8 @@ import signals
 import Tkinter as tk
 import ttk
 
+NORM_FONT 		= ("Verdana", 10) # Font for popups
+
 
 def scan(codes, path, log_file):
 	# Scans the website http://bigcharts.marketwatch.com for the latest EoD data
@@ -232,13 +234,14 @@ def get_historical(log_file):
 	except:
 		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
 
-def notify_of_signals(codes):
+def notify_of_signals(codes, sig_log_file):
 	all_signals = signals.check_for_new_signals(codes)
 	for code in codes:
 		if code in all_signals:
 			signals_for_code = all_signals[code]
 			signal_message = ''
 			for signal in signals_for_code:
+				sig_log_file.write(str(dt.datetime.now()) + " " + signal + "\n")
 				signal_message = signal_message + "\n" + signal
 			
 			popupmsg(code, signal_message)

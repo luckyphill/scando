@@ -1,4 +1,3 @@
-scando.log
-TEST_scando.log
+*.log
 *_data/
 *.pyc

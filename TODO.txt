@@ -1,0 +1,11 @@
+TO DO LIST
+
+- Make it handle new codes add to watchlist
+	- Have to wait until Monday before new analysis can happen unless filled in manually
+- Set up genentic algorithm
+- Make more meaningful signals
+- Make a guide
+- When signals occur plot a chart (Low Priority, but would be super cool)
+- Make clean_raw_data.py create the folder if it doesn't exist
+- Fix up initialise approach with tech.py
+- 

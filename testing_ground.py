@@ -13,8 +13,10 @@ import ttk
 # Need to specify full paths for supervisord otherwise get errors
 path 			= "/Users/Manda/scando/"
 log_file 		= path + 'TEST_scando.log'
+siglog 			= path + 'TEST_siglog.log'
 watch_list 		= path + 'Watch_list.csv'
 lf 				= open(log_file, 'a+')
+siglf 			= open(siglog, 'a+')
 earliestDate 	= 20000101
 num_days		= 10 #testing variable
 NORM_FONT 		= ("Verdana", 10)
@@ -63,16 +65,17 @@ for days in xrange(num_days):
 #================================================================
 # Testing signal output
 codes = eod.get_codes(watch_list)
+eod.notify_of_signals(codes, siglf)
 
-all_signals = signals.check_for_new_signals(codes)
-for code in codes:
-	if code in all_signals:
-		signals_for_code = all_signals[code]
-		signal_message = ''
-		for signal in signals_for_code:
-			signal_message = signal_message + "\n" + signal
+# all_signals = signals.check_for_new_signals(codes)
+# for code in codes:
+# 	if code in all_signals:
+# 		signals_for_code = all_signals[code]
+# 		signal_message = ''
+# 		for signal in signals_for_code:
+# 			signal_message = signal_message + "\n" + signal
 		
-		popupmsg(code, signal_message)
+# 		popupmsg(code, signal_message)
 #================================================================
 
 

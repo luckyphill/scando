@@ -22,10 +22,12 @@ while(True):
 	if (day < 5) and (hour > 16) and (checked_date < date): # if we're on a weekday after 5pm and we haven't updated already
 		
 		lf = open(log_file,'a+')
+		siglf = open(siglog, 'a+')
 		
 		codes = eod.get_codes(watch_list)
 		eod.scan(codes, path, lf)
 		eod.tech_update(codes, path, lf)
+		eod.notify_of_signals(codes, siglf)
 		
 		# make a popup that points out signals
 		

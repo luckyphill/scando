@@ -11,9 +11,19 @@ For the share price data analysis we need:
 		Tkinter: should alreaedy be include with python
 
 This bunch of scripts grabs EoD data for all the company codes listed in Watch_list.txt
-It cannot get historical data. If more data is needed, visit https://www.asxhistoricaldata.com/ for free data
+It attmepts to get historical data but it might not work. If more data is needed, visit https://www.asxhistoricaldata.com/ for free data
 which must be manually downloaded, unzipped and stored in the folder raw_data.
 If you have new raw data, you must run clean_raw_data.py to put it in a form for each individual company - this may take a few minutes
+
+From the beginning:
+1. Get all the historical data
+2. Unzip it and put it in /raw_data
+3. Run clean_raw_data.py
+4. Run tech.py to initialise
+5. Put plist in right spot (this will take care of things after a reboot)
+6. Put the supervisord.conf file in /usr/local/share/supervisor/supervisord.conf
+6. Start scando.py with the supervisord
+	- supervisord -c /usr/local/share/supervisor/supervisord.conf
 
 If your historical data is up to date then the background process can be left to run autonomously
 At around 5pm it will look up EoD data from http://bigcharts.marketwatch.com for all codes in Watch_list.txt
