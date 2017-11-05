@@ -37,7 +37,10 @@ for date in dates:
 		print "No data for " + str(date)
 
 # save the data into a csv file
-
+# make the folder if it doesn't exist
+if not os.path.exists('stock_data/'):
+		os.makedirs('stock_data/')
+		
 for company in stockPriceData:
 	print "Writing data for " + company
 	file_name = "stock_data/" + company + ".csv"

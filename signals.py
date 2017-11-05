@@ -24,14 +24,14 @@ def check_for_new_signals(codes):
 				if len(line) > 1: # First line has parameters
 					rsi_data.append(float(line[3]))
 		 
-		macd_data = []
-		with open('macd9-21_data/' + code + ".csv") as f:
+		ema921_data = []
+		with open('ema921_data/' + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
-				macd_data.append(float(line[1]))
+				ema921_data.append(float(line[1]))
 
 
-		signals_list = [[dead_cat_bounce, dead_cat_data], [rsi_breaks, rsi_data], [macd_crossover, macd_data]]
+		signals_list = [[dead_cat_bounce, dead_cat_data], [rsi_breaks, rsi_data], [ema921_crossover, ema921_data]]
 
 		for signal in signals_list:
 			signal_generator 	= signal[0]
@@ -73,10 +73,10 @@ def rsi_breaks(code, rsi_data):
 	else:
 		return False
 
-def macd_crossover(code, macd_data):
-	if macd_data[-1] > 0 and macd_data[-2] < 0:
-		return code + " has MACD changed to POSITIVE"
-	elif macd_data[-1] < 0 and macd_data[-2] > 0: 
-		return code + " has MACD changed to NEGATIVE"
+def ema921_crossover(code, ema921_data):
+	if ema921_data[-1] > 0 and ema921_data[-2] < 0:
+		return code + " has EMA 9-21 changed to POSITIVE"
+	elif ema921_data[-1] < 0 and ema921_data[-2] > 0: 
+		return code + " has EMA 9-21 changed to NEGATIVE"
 	else:
 		return False

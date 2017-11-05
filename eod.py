@@ -84,7 +84,7 @@ def tech_update(codes, path, log_file):
 		
 		rsi_file = path + "rsi_data/" + code + ".csv"
 		bollinger_file = path + "bollinger_data/" + code + ".csv"
-		ema9_file = path + "ema9_data/" + code + ".csv"
+		ema921_file = path + "ema921_data/" + code + ".csv"
 		quote_file = path + "stock_data/" + code + ".csv"
 
 		with open(quote_file, 'r') as f:
@@ -93,7 +93,7 @@ def tech_update(codes, path, log_file):
 			
 
 		# Make a dictionary of function pointers and files and pass this into the update function
-		analysis_list = [['RSI', rsi_new_data, rsi_file],['Bollinger Bands', bol_new_data, bollinger_file], ['9 Period EMA', ema_new_data, ema9_file]]
+		analysis_list = [['RSI', rsi_new_data, rsi_file],['Bollinger Bands', bol_new_data, bollinger_file], ['9-21 Period EMA Cross over', ema921_new_data, ema921_file]]
 		for analysis_type in analysis_list:
 			
 			analysis_name = analysis_type[0]
@@ -188,17 +188,38 @@ def ema_new_data(quote_list, ema_prev_data):
 	return [latest_quote_date, ema]
 
 def macd_new_data(quote_list, macd_prev_data):
-	# make two emas with 9 and 21 and take the difference
+	# make two emas with 12 and 26 and take the difference
+	# then take a signal line
 	latest_quote_date	= quote_list[-1][0]
-	period_short		= float(ema_prev_data[0][0])
-	period_long			= float(ema_prev_data[0][1])
+	period_short		= float(macd_prev_data[0][0])
+	period_long			= float(macd_prev_data[0][1])
+	period_signal		= float(macd_prev_data[0][2])
 	
-	prev_data			= [float(i) for i in ema_prev_data[-1]]
+	prev_data			= [float(i) for i in macd_prev_data[-1]]
 
 	ema_short			= (prev_data[1]*(period_short - 1) + float(quote_list[-1][4]))/period_short
 	ema_long			= (prev_data[2]*(period_long - 1) + float(quote_list[-1][4]))/period_long
+	ema_signal			= (prev_data[2]*(period_signal - 1) + float(quote_list[-1][4]))/period_signal
 
-	return [latest_quote_date, ema_short, ema_long, macd]
+	macd_line			= ema_short - ema_long
+	macd_hist			= macd_line - ema_signal
+
+	return [latest_quote_date, ema_short, ema_long, ema_signal, macd_line, macd_hist]
+
+def ema921_new_data(quote_list, ema921_prev_data):
+	# make two emas with 9 and 21 and take the difference
+	latest_quote_date	= quote_list[-1][0]
+	period_short		= float(ema921_prev_data[0][0])
+	period_long			= float(ema921_prev_data[0][1])
+	
+	prev_data			= [float(i) for i in ema921_prev_data[-1]]
+
+	ema921_short		= (prev_data[1]*(period_short - 1) + float(quote_list[-1][4]))/period_short
+	ema921_long			= (prev_data[2]*(period_long - 1) + float(quote_list[-1][4]))/period_long
+
+	cross_hist			= ema921_short - ema921_long
+
+	return [latest_quote_date, ema921_short, ema921_long, cross_hist]
 
 def get_historical(log_file):
 	data_page = 'https://www.asxhistoricaldata.com/data/'

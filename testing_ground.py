@@ -64,8 +64,8 @@ for days in xrange(num_days):
 
 #================================================================
 # Testing signal output
-codes = eod.get_codes(watch_list)
-eod.notify_of_signals(codes, siglf)
+#codes = eod.get_codes(watch_list)
+#eod.notify_of_signals(codes, siglf)
 
 # all_signals = signals.check_for_new_signals(codes)
 # for code in codes:
