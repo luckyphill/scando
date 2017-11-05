@@ -8,7 +8,7 @@ For the share price data analysis we need:
 		A modified config file for supervisord
 		A plist file to run supervisord on startup
 	Stuff for the pop up notificaions:
-		TBD
+		Tkinter: should alreaedy be include with python
 
 This bunch of scripts grabs EoD data for all the company codes listed in Watch_list.txt
 It cannot get historical data. If more data is needed, visit https://www.asxhistoricaldata.com/ for free data

@@ -6,6 +6,9 @@ import time
 import datetime as dt
 import numpy as np
 import os
+import urllib
+import zipfile
+import shutil
 
 
 def scan(codes, path, log_file):
@@ -194,6 +197,41 @@ def macd_new_data(quote_list, macd_prev_data):
 	ema_long			= (prev_data[2]*(period_long - 1) + float(quote_list[-1][4]))/period_long
 
 	return [latest_quote_date, ema_short, ema_long, macd]
+
+def get_historical(log_file):
+	data_page = 'https://www.asxhistoricaldata.com/data/'
+	date = dt.date.today()#.strftime("%Y%m%d")
+	# We're going to assume it's a sunday
+	date = date - dt.timedelta(2)
+	file_name = 'week' + date.strftime("%Y%m%d") + ".zip"
+	dl_location = data_page + file_name
+	file_location = 'zip_data/' + file_name
+	
+	if not os.path.exists('zip_data/'):
+		os.makedirs('zip_data/')
+
+	try:
+		log_file.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d")) 
+		urllib.urlretrieve (dl_location, file_location)
+
+		zip_ref = zipfile.ZipFile(file_location, 'r')
+		extract_location = 'raw_data/'
+		if not os.path.exists(extract_location):
+			os.makedirs(extract_location)
+
+		log_file.write(str(dt.datetime.now()) + "Unzipping new data")
+		zip_ref.extractall(extract_location)
+		zip_ref.close()
+
+		root = 'raw_data/'
+		subd = 'week' + date.strftime("%Y%m%d")
+		for filename in os.listdir(os.path.join(root, subd)):
+		    shutil.move(os.path.join(root, subd, filename), os.path.join(root, filename))
+		os.rmdir(root + subd)
+		log_file.write(str(dt.datetime.now()) + "Download successful")
+	except:
+		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading"
+
 #=============================================================================
 # Old code that I'm not comfortable enough yet to delete
 #=============================================================================

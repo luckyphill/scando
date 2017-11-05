@@ -3,6 +3,7 @@ import time
 import datetime as dt
 import eod
 import os
+import zipfile
 
 # Need to specify full paths for supervisord otherwise get errors
 path 			= "/Users/manda/Shares/"
@@ -18,7 +19,7 @@ while(True):
 
 	if (day < 5) and (hour > 16) and (checked_date < date): # if we're on a weekday after 5pm and we haven't updated already
 		
-		lf = open(log_file,'a')
+		lf = open(log_file,'a+')
 		
 		codes = eod.get_codes(watch_list)
 		eod.scan(codes, path, lf)
@@ -31,6 +32,9 @@ while(True):
 
 		eod.clean_log(log_file, log_size_limit)
 		checked_date = date
-		
+	
+	if day == 6 and hour > 16:
+		# Download lastest zip file from https://www.asxhistoricaldata.com/
+		print "nothing"
 
 	time.sleep(900) # check every 15 minutes
