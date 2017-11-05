@@ -59,7 +59,21 @@ for days in xrange(num_days):
 
 	eod.tech_update(codes, path, lf)
 
-eod.get_historical(lf)
+
+#================================================================
+# Testing signal output
+codes = eod.get_codes(watch_list)
+
+all_signals = signals.check_for_new_signals(codes)
+for code in codes:
+	if code in all_signals:
+		signals_for_code = all_signals[code]
+		signal_message = ''
+		for signal in signals_for_code:
+			signal_message = signal_message + "\n" + signal
+		
+		popupmsg(code, signal_message)
+#================================================================
 
 
 # for code in codes:

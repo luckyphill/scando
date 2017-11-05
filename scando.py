@@ -8,8 +8,10 @@ import zipfile
 # Need to specify full paths for supervisord otherwise get errors
 path 			= "/Users/manda/Shares/"
 log_file 		= path + 'scando.log'
+siglog 			= path + 'siglog.log'
 watch_list 		= path + 'Watch_list.csv'
 checked_date 	= dt.date(2000,1,1) #initial date for when scando is first started
+dl_checked_date = checked_date # a check date for the automatic downloading of historical data
 log_size_limit 	= 1000000 #about 10Mb
 
 while(True):
@@ -31,10 +33,15 @@ while(True):
 		lf.close()
 
 		eod.clean_log(log_file, log_size_limit)
+
 		checked_date = date
 	
-	if day == 6 and hour > 16:
-		# Download lastest zip file from https://www.asxhistoricaldata.com/
-		print "nothing"
+	if day == 6 and hour > 16 and dl_checked_date < date:
+		# See if we can update the historical data automatically
+		# It has worked, but it might not forever
+		eod.get_historical(lf)
+		dl_checked_date = date
+	
+		
 
 	time.sleep(900) # check every 15 minutes

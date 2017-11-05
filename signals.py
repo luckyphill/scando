@@ -2,15 +2,58 @@
 import time
 import datetime as dt
 import os
+import csv
 
 
-path 		= "/Users/manda/Shares/"
-siglog 		= path + 'siglog.log'
-
-def check_for_signals():
+def check_for_new_signals(codes):
 	# Make a list of signal generating functions and loop through it
-	return 0
 
+	signals_output = {} # A dictionary of signals for each stock
+	for code in codes:
+		#collect the data
+		dead_cat_data = []
+		with open('stock_data/' + code + ".csv") as f:
+			data_reader = csv.reader(f, delimiter=',')
+			for line in data_reader:
+				dead_cat_data.append(float(line[4]))
+
+		rsi_data = []
+		with open('rsi_data/' + code + ".csv") as f:
+			data_reader = csv.reader(f, delimiter=',')
+			for line in data_reader:
+				if len(line) > 1: # First line has parameters
+					rsi_data.append(float(line[3]))
+		 
+		macd_data = []
+		with open('macd9-21_data/' + code + ".csv") as f:
+			data_reader = csv.reader(f, delimiter=',')
+			for line in data_reader:
+				macd_data.append(float(line[1]))
+
+
+		signals_list = [[dead_cat_bounce, dead_cat_data], [rsi_breaks, rsi_data], [macd_crossover, macd_data]]
+
+		for signal in signals_list:
+			signal_generator 	= signal[0]
+			data 				= signal[1]
+
+			result 				= signal_generator(code, data)
+			
+			if result:
+				if code not in signals_output:
+					signals_output[code] = []
+				signals_output[code].append(result)
+
+
+	return signals_output
+
+def check_for_historical_signals(codes):
+	# WILL NEED THIS FOR THE GENETIC ALGORITHM
+	# Not useful right now
+
+	signals_output = {}
+
+	return signals_output
 
 def dead_cat_bounce(code, price_data):
 	abs_change = price_data[-1] - price_data[-2] # for a price drop this will be -ve
@@ -22,8 +65,18 @@ def dead_cat_bounce(code, price_data):
 	else:
 		return False
 
-def rsi_breaks(code, price_data):
-	if price_data[-1] >=70 and price_data[-2]<70:
+def rsi_breaks(code, rsi_data):
+	if rsi_data[-1] >=70 and rsi_data[-2]<70:
 		return code + ' has broken above RSI of 70'
-	elif price_data[-1] <=30 and price_data[-2]>30:
+	elif rsi_data[-1] <=30 and rsi_data[-2]>30:
 		return code + ' has broken below RSI of 30'
+	else:
+		return False
+
+def macd_crossover(code, macd_data):
+	if macd_data[-1] > 0 and macd_data[-2] < 0:
+		return code + " has MACD changed to POSITIVE"
+	elif macd_data[-1] < 0 and macd_data[-2] > 0: 
+		return code + " has MACD changed to NEGATIVE"
+	else:
+		return False

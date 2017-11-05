@@ -9,6 +9,9 @@ import os
 import urllib
 import zipfile
 import shutil
+import signals
+import Tkinter as tk
+import ttk
 
 
 def scan(codes, path, log_file):
@@ -99,9 +102,6 @@ def tech_update(codes, path, log_file):
 		
 	# for each code, we want to look at the latest data and update the technical ananlysis files
 	# at the moment we have RSI and Bollinger bands
-
-#def get_signals():
-	# Use the all the data to generate buy/sell signals and produce a notify the user
 
 def clean_log(log_file, log_size_limit):
 	if (os.path.getsize(log_file) > log_size_limit):
@@ -230,7 +230,28 @@ def get_historical(log_file):
 		os.rmdir(root + subd)
 		log_file.write(str(dt.datetime.now()) + "Download successful")
 	except:
-		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading"
+		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
+
+def notify_of_signals(codes):
+	all_signals = signals.check_for_new_signals(codes)
+	for code in codes:
+		if code in all_signals:
+			signals_for_code = all_signals[code]
+			signal_message = ''
+			for signal in signals_for_code:
+				signal_message = signal_message + "\n" + signal
+			
+			popupmsg(code, signal_message)
+
+def popupmsg(code, msg):
+    popup = tk.Tk()
+    popup.wm_title("Scando: " + code + " activity")
+    label = ttk.Label(popup, text=msg, font=NORM_FONT)
+    label.pack(side="top", fill="x", pady=10)
+    B1 = ttk.Button(popup, text="Cheers bro", command = popup.destroy)
+    B1.pack()
+    popup.mainloop()
+
 
 #=============================================================================
 # Old code that I'm not comfortable enough yet to delete
@@ -265,95 +286,5 @@ def get_historical(log_file):
 
 # 	eod_data = [proper_date, open_p, high, low, close, vol]
 # 	print eod_data
-
-# rsi_update(code, quote_list, rsi_file, log_file)
-		# bol_update(code, quote_list, bollinger_file, log_file)
-		# ema_update(code, quote_list, ema9_file, log_file)
-
-
-# def rsi_update(code, quote_list, rsi_file, log_file):
-# 	# Update the RSI data for a given stock
-# 	latest_quote = quote_list[-1]
-# 	log_file.write(str(dt.datetime.now()) + " Updating RSI data for " + code + "\n")
-	
-# 	with open(rsi_file, 'r') as f_rsi:
-# 		rsi_reader = csv.reader(f_rsi, delimiter=',')
-# 		rsi_list = list(rsi_reader)
-		
-# 	if  latest_quote[0] == rsi_list[-1][0]:
-# 		log_file.write(str(dt.datetime.now()) + " Data appears to be up to date\n")
-# 	else:
-# 		period 		= float(rsi_list[0][0])
-# 		prev_data	= [float(i) for i in rsi_list[-1]]
-
-# 		x 			= [[float(i) for i in row] for row in quote_list[-2:]] # The last two rows. Only interested in the last entry to make up and down
-# 		up			= x[1][4] - x[0][4] if x[1][4] - x[0][4] >= 0 else 0
-# 		down 		= x[0][4] - x[1][4] if x[0][4] - x[1][4] >= 0 else 0
-# 		up_smma		= (prev_data[1]*(period -1 ) + up)/period
-# 		down_smma	= (prev_data[2]*(period -1 ) + up)/period
-# 		rs 			= up_smma/down_smma
-# 		rsi 		= 100 -100/(1 + rs)
-
-# 		new_data = [latest_quote[0], up_smma, down_smma, rsi]
-# 		log_file.write(str(dt.datetime.now()) + " Writing data\n")
-# 		with open(rsi_file, 'a') as f_rsi:
-# 			rsi_writer = csv.writer(f_rsi, delimiter=',')
-# 			rsi_writer.writerow(new_data)
-
-# def bol_update(code, quote_list, bollinger_file, log_file):
-# 	# Update the Bollinger Band data for a given stock
-# 	latest_quote = quote_list[-1]
-# 	log_file.write(str(dt.datetime.now()) + " Updating Bollinger Band data for " + code + "\n")
-	
-# 	with open(bollinger_file, 'r') as f_bol:
-# 		bol_reader = csv.reader(f_bol, delimiter=',')
-# 		bol_list = list(bol_reader)
-		
-
-# 	if  latest_quote[0] == bol_list[-1][0]:
-# 		log_file.write(str(dt.datetime.now()) + " Data appears to be up to date.\n")
-# 	else:
-# 		# Do the calculations mate
-# 		period 		= int(bol_list[0][0])
-# 		K			= int(bol_list[0][1])
-
-# 		x 			= [[float(i) for i in row] for row in quote_list[-period:]]
-# 		prev_data	= [float(i) for i in bol_list[-1]]
-# 		smma 		= (prev_data[2]*(period -1 ) + x[-1][4])/period
-# 		std_dev 	= np.std([x[i][4] for i in range(0,period)])
-
-# 		upper 		= smma + K * std_dev
-# 		lower 		= smma - K * std_dev
-
-# 		new_data 	= [latest_quote[0], lower, smma, upper]
-# 		log_file.write(str(dt.datetime.now()) + " Writing data\n")
-
-# 		with open(bollinger_file, 'a') as f_bol:
-# 			bol_writer = csv.writer(f_bol, delimiter=',')
-# 			bol_writer.writerow(new_data)
-
-# #def ema_update(period, data):
-# def ema_update(code, quote_list, ema_file, log_file):
-# 	# Update the RSI data for a given stock
-# 	latest_quote = quote_list[-1]
-# 	log_file.write(str(dt.datetime.now()) + " Updating RSI data for " + code + "\n")
-	
-# 	with open(ema_file, 'r') as f_ema:
-# 		ema_reader = csv.reader(f_ema, delimiter=',')
-# 		ema_list = list(ema_reader)
-		
-# 	if  latest_quote[0] == ema_list[-1][0]:
-# 		log_file.write(str(dt.datetime.now()) + " Data appears to be up to date\n")
-# 	else:
-# 		period 		= float(ema_list[0][0])
-# 		prev_data	= [float(i) for i in ema_list[-1]]
-
-# 		ema			= (prev_data[1]*(period -1 ) + float(latest_quote[4]))/period
-
-# 		new_data = [latest_quote[0], ema]
-# 		log_file.write(str(dt.datetime.now()) + " Writing data\n")
-# 		with open(ema_file, 'a') as f_ema:
-# 			ema_writer = csv.writer(f_ema, delimiter=',')
-# 			ema_writer.writerow(new_data)
 
 
