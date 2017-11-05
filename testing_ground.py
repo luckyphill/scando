@@ -12,6 +12,7 @@ path 			= "/Users/manda/Shares/"
 log_file 		= path + 'TEST_scando.log'
 watch_list 		= path + 'Watch_list.csv'
 lf 				= open(log_file, 'a')
+earliestDate 	= 20000101
 num_days		= 10 #testing variable
 
 # This is purely for testing new functions/process/data handling etc.
@@ -23,7 +24,7 @@ num_days		= 10 #testing variable
 
 codes = ['1AA'] # all testing done with code 1AA - this puts it at the top of the folder
 
-init.init_from_historical(codes, path) # Takes the raw stock_data and turns it into technical data
+init.init_from_historical(codes, earliestDate, path) # Takes the raw stock_data and turns it into technical data
 
 #================================================================
 # Make a place to "scan" from
