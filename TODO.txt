@@ -8,4 +8,4 @@ TO DO LIST
 - When signals occur plot a chart (Low Priority, but would be super cool)
 - Make clean_raw_data.py create the folder if it doesn't exist
 - Fix up initialise approach with tech.py
-- 
+- Re think stroing all the data
