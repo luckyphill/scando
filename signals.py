@@ -5,27 +5,30 @@ import os
 import csv
 
 
-def check_for_new_signals(codes):
+def check_for_new_signals(codes, path):
 	# Make a list of signal generating functions and loop through it
+	dead_cat_path = path + 'data/stock_data/'
+	rsi_path = path + 'data/rsi_data/'
+	ema921_path = path + 'data/ema921_data/'
 
 	signals_output = {} # A dictionary of signals for each stock
 	for code in codes:
 		#collect the data
 		dead_cat_data = []
-		with open('stock_data/' + code + ".csv") as f:
+		with open(dead_cat_path + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
 				dead_cat_data.append(float(line[4]))
 
 		rsi_data = []
-		with open('rsi_data/' + code + ".csv") as f:
+		with open(rsi_path + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
 				if len(line) > 1: # First line has parameters
 					rsi_data.append(float(line[3]))
 		 
 		ema921_data = []
-		with open('ema921_data/' + code + ".csv") as f:
+		with open(ema921_path + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
 				ema921_data.append(float(line[1]))
@@ -58,7 +61,7 @@ def check_for_historical_signals(codes):
 def dead_cat_bounce(code, price_data):
 	abs_change = price_data[-1] - price_data[-2] # for a price drop this will be -ve
 	rel_change = abs_change/price_data[-2]
-	threshold  = 0.1
+	threshold  = 0.07
 
 	if rel_change <  -threshold:
 		return 'A significant drop has occurred for ' + code

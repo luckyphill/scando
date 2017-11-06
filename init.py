@@ -10,31 +10,31 @@ import os.path
 
 def init_historical(code, earliestDate, path):
 	stockPriceData = []
-	file_name = path + "stock_data/" + code + ".csv"
+	file_name = path + "data/stock_data/" + code + ".csv"
 	with open(file_name, 'rU') as csvfile:
 		data_reader = csv.reader(csvfile, dialect='excel')
 		for data in data_reader:
 			if data[0] > earliestDate:
 				stockPriceData.append(data)
 
-	rsi_path = path + "rsi_data/"
+	rsi_path = path + "data/rsi_data/"
 	if not os.path.exists(rsi_path):
 		os.makedirs(rsi_path)
 	
-	bollinger_path = path + "bollinger_data/"
+	bollinger_path = path + "data/bollinger_data/"
 	if not os.path.exists(bollinger_path):
 		os.makedirs(bollinger_path)
 
 	period_short = 9
 	period_long = 21
-	ema921_path = path + "ema921_data/"
+	ema921_path = path + "data/ema921_data/"
 	if not os.path.exists(ema921_path):
 		os.makedirs(ema921_path)
 
 	period_short = 12
 	period_long = 26
 	period_signal = 9
-	macd_path = path + "macd_data/"
+	macd_path = path + "data/macd_data/"
 	if not os.path.exists(macd_path):
 		os.makedirs(macd_path)
 

@@ -25,7 +25,7 @@ def scan(codes, path, log_file):
 	for code in codes:
 		log_file.write(str(dt.datetime.now()) + " Checking current data for " + code + "\n")
 		
-		file_name = path + "stock_data/" + code + ".csv"
+		file_name = path + "data/stock_data/" + code + ".csv"
 
 		with open(file_name, 'r') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',')
@@ -82,10 +82,10 @@ def tech_update(codes, path, log_file):
 
 	for code in codes:
 		
-		rsi_file = path + "rsi_data/" + code + ".csv"
-		bollinger_file = path + "bollinger_data/" + code + ".csv"
-		ema921_file = path + "ema921_data/" + code + ".csv"
-		quote_file = path + "stock_data/" + code + ".csv"
+		rsi_file = path + "data/rsi_data/" + code + ".csv"
+		bollinger_file = path + "data/bollinger_data/" + code + ".csv"
+		ema921_file = path + "data/ema921_data/" + code + ".csv"
+		quote_file = path + "data/stock_data/" + code + ".csv"
 
 		with open(quote_file, 'r') as f:
 			quote_reader = csv.reader(f, delimiter=',')
@@ -228,17 +228,17 @@ def get_historical(log_file):
 	date = date - dt.timedelta(2)
 	file_name = 'week' + date.strftime("%Y%m%d") + ".zip"
 	dl_location = data_page + file_name
-	file_location = 'zip_data/' + file_name
+	file_location = 'data/zip_data/' + file_name
 	
-	if not os.path.exists('zip_data/'):
-		os.makedirs('zip_data/')
+	if not os.path.exists('data/zip_data/'):
+		os.makedirs('data/zip_data/')
 
 	try:
 		log_file.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d")) 
 		urllib.urlretrieve (dl_location, file_location)
 
 		zip_ref = zipfile.ZipFile(file_location, 'r')
-		extract_location = 'raw_data/'
+		extract_location = 'data/raw_data/'
 		if not os.path.exists(extract_location):
 			os.makedirs(extract_location)
 
@@ -246,7 +246,7 @@ def get_historical(log_file):
 		zip_ref.extractall(extract_location)
 		zip_ref.close()
 
-		root = 'raw_data/'
+		root = 'data/raw_data/'
 		subd = 'week' + date.strftime("%Y%m%d")
 		for filename in os.listdir(os.path.join(root, subd)):
 		    shutil.move(os.path.join(root, subd, filename), os.path.join(root, filename))
@@ -255,8 +255,8 @@ def get_historical(log_file):
 	except:
 		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
 
-def notify_of_signals(codes, sig_log_file):
-	all_signals = signals.check_for_new_signals(codes)
+def notify_of_signals(codes, path, sig_log_file):
+	all_signals = signals.check_for_new_signals(codes, path)
 	for code in codes:
 		if code in all_signals:
 			signals_for_code = all_signals[code]

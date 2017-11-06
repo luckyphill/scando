@@ -11,9 +11,9 @@ import ttk
 
 
 # Need to specify full paths for supervisord otherwise get errors
-path 			= "/Users/Manda/scando/"
-log_file 		= path + 'TEST_scando.log'
-siglog 			= path + 'TEST_siglog.log'
+path 			= "/Users/phillipbrown/scando/"
+log_file 		= path + 'logs/TEST_scando.log'
+siglog 			= path + 'logs/TEST_siglog.log'
 watch_list 		= path + 'Watch_list.csv'
 lf 				= open(log_file, 'a+')
 siglf 			= open(siglog, 'a+')
@@ -40,7 +40,7 @@ for code in codes:
 
 #================================================================
 # Make a place to "scan" from
-file_scan = path + "stock_data/ANZ.csv"
+file_scan = path + "data/stock_data/ANZ.csv"
 with open(file_scan, 'r') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	scan_location = list(reader)
@@ -48,7 +48,7 @@ with open(file_scan, 'r') as csvfile:
 
 
 code = codes[0]
-quote_file = path + "stock_data/" + code + ".csv"
+quote_file = path + "data/stock_data/" + code + ".csv"
 
 for days in xrange(num_days):
 	#============================================================

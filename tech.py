@@ -10,12 +10,14 @@ import os.path
 #this is intended for the first run, afterwards shorter updates will be used
 #data is stored as Date,Open,High,Low,Close,Volume
 earliestDate 	= 20000101
-path 			= "/Users/manda/Shares/"
+path 			= "/Users/phillipbrown/scando/"
+watch_list = path + "Watch_list.csv"
+
 
 codes = []
-with open("Watch_list.csv", 'rU') as csvfile:
+with open(watch_list, 'rU') as csvfile:
 	codes_reader = csv.reader(csvfile, dialect='excel')
 	for code in codes_reader:
 		codes.append(code[0])
-
-init.init_from_historical(codes, earliestDate, path)
+for code in codes:
+	init.init_historical(code, earliestDate, path)

@@ -8,6 +8,7 @@ TO DO LIST
 - When signals occur plot a chart (Low Priority, but would be super cool)
 - Fix up initialise approach with tech.py
 - Re think stroing all the data
+- New signal: Bollinger bands have action like BSL, narrowing -> buy or sell
 
 - When adding new files from the asxhistoricaldata.com page, need to update only the stocks we haven't been watching
 - If a new code gets added to watchlist, only start it on a Sunday after historical data added

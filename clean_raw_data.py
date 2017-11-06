@@ -23,7 +23,7 @@ for year in xrange(earliestYear, latestYear):
 			dates.append(year * 10000 + month * 100 + day)
 
 for date in dates:
-	file_name = "raw_data/" + str(date) + ".txt"
+	file_name = "data/raw_data/" + str(date) + ".txt"
 	if os.path.isfile(file_name):
 		print "Reading data from " + str(date)
 		with open(file_name, 'r') as file:
@@ -38,12 +38,12 @@ for date in dates:
 
 # save the data into a csv file
 # make the folder if it doesn't exist
-if not os.path.exists('stock_data/'):
-		os.makedirs('stock_data/')
+if not os.path.exists('data/stock_data/'):
+		os.makedirs('data/stock_data/')
 		
 for company in stockPriceData:
 	print "Writing data for " + company
-	file_name = "stock_data/" + company + ".csv"
+	file_name = "data/stock_data/" + company + ".csv"
 	with open(file_name, 'wb') as csvfile:
 		writer = csv.writer(csvfile, delimiter=',')
 		for row in stockPriceData[company]:

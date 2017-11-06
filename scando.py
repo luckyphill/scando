@@ -6,9 +6,9 @@ import os
 import zipfile
 
 # Need to specify full paths for supervisord otherwise get errors
-path 			= "/Users/manda/Shares/"
-log_file 		= path + 'scando.log'
-siglog 			= path + 'siglog.log'
+path 			= "/Users/phillipbrown/scando/"
+log_file 		= path + 'logs/scando.log'
+siglog 			= path + 'logs/siglog.log'
 watch_list 		= path + 'Watch_list.csv'
 checked_date 	= dt.date(2000,1,1) #initial date for when scando is first started
 dl_checked_date = checked_date # a check date for the automatic downloading of historical data
@@ -19,7 +19,7 @@ while(True):
 	day 	= dt.date.today().weekday()
 	hour 	= dt.datetime.now().hour
 
-	if (day < 5) and (hour > 16) and (checked_date < date): # if we're on a weekday after 5pm and we haven't updated already
+	if day < 5 and hour > 16 and checked_date < date: # if we're on a weekday after 5pm and we haven't updated already
 		
 		lf = open(log_file,'a+')
 		siglf = open(siglog, 'a+')
@@ -27,8 +27,7 @@ while(True):
 		codes = eod.get_codes(watch_list)
 		eod.scan(codes, path, lf)
 		eod.tech_update(codes, path, lf)
-		eod.notify_of_signals(codes, siglf)
-		
+		eod.notify_of_signals(codes, path, siglf)
 		# make a popup that points out signals
 		
 		lf.write(str(dt.datetime.now()) + " Done for the day, sleeping...\n")
