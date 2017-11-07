@@ -11,8 +11,10 @@ log_file 		= path + 'logs/scando.log'
 siglog 			= path + 'logs/siglog.log'
 watch_list 		= path + 'Watch_list.csv'
 checked_date 	= dt.date(2000,1,1) #initial date for when scando is first started
-dl_checked_date = checked_date # a check date for the automatic downloading of historical data
+dl_checked_date = dt.date(2000,1,1) # a check date for the automatic downloading of historical data
 log_size_limit 	= 1000000 #about 10Mb
+
+codes = eod.get_codes(watch_list) # Get all the codes at start up
 
 while(True):
 	date 	= dt.date.today()
@@ -24,7 +26,7 @@ while(True):
 		lf = open(log_file,'a+')
 		siglf = open(siglog, 'a+')
 		
-		codes = eod.get_codes(watch_list)
+		
 		eod.scan(codes, path, lf)
 		eod.tech_update(codes, path, lf)
 		eod.notify_of_signals(codes, path, siglf)
@@ -41,6 +43,7 @@ while(True):
 		# See if we can update the historical data automatically
 		# It has worked, but it might not forever
 		eod.get_historical(lf)
+		codes = eod.check_for_watch_list_change(codes, watch_list, earliestDate, path, log_file)
 		dl_checked_date = date
 	
 		

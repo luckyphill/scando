@@ -6,7 +6,116 @@ import sys
 import copy
 import numpy as np
 import os.path
+import datetime as dt
 
+def launch_proceedure(earliestDate, watchlist, path, log_file):
+	#checks that everything is ready to go on program launch
+
+	#check that all the files for all the codes exist
+	#makes sure that data is up to date
+	#if it's not up to date, removes that code for the week
+	# returns the codes to check
+	# if there is no folder path + "data/" then we've got big problems and program can't run
+	# if there is not data in data/stock_data/ then run full initialisation
+	
+	todays_date = dt.date.today().strftime("%Y%m%d")
+
+	codes = []
+	with open(watch_list, 'rU') as csvfile:
+		codes_reader = csv.reader(csvfile, dialect='excel')
+		for code in codes_reader:
+			codes.append(code[0])
+
+	if not os.path.exists(path + "data/stock_data"):
+		os.makedirs(path + "data/stock_data")
+	
+	if not os.listdir(path + "data/stock_data"):
+		log_file.write(str(dt.datetime.now()) + " No data exists, performing full initialisation\n")
+		init_all_codes(code, earliestDate, path, log_file)
+
+
+	for code in codes:
+		# check each code and see if the data is up to date
+		file_name = path + "data/stock_data" + code + ".csv"
+		if os.path.isfile(file_name):
+			with open(file_name, 'r') as file:
+				data_reader = csv.reader(file, dialect='excel')
+			most_recent_date = data_reader[-1][0]
+			# if the most recent data in the file is not up to date then we've got to wait until we've got the historical data on Sunday
+			# so remove the code from the list
+			if most_recent_date => todays_date - 1
+		else:
+			# remove code, wait til the end of the week
+
+	return codes
+
+def init_all_codes(code, earliestDate, path, log_file):
+	log_file.write(str(dt.datetime.now()) + " Initalising historical data\n")
+	stockPriceData = []
+	earliestYear = 2000
+	latestYear = dt.date.today().year() + 1
+	dates = []
+	for year in xrange(earliestYear, latestYear):
+		for month in xrange(1,13):
+			for day in xrange(1,32):
+				dates.append(year * 10000 + month * 100 + day)
+
+	for date in dates:
+		file_name = "data/raw_data/" + str(date) + ".txt"
+		if os.path.isfile(file_name):
+			print "Reading data from " + str(date)
+			with open(file_name, 'r') as file:
+				data_reader = csv.reader(file, dialect='excel')
+				for row in data_reader:
+					if row[0] not in stockPriceData:
+						stockPriceData[row[0]] = []
+					stockPriceData[row[0]].append(row[1:])
+
+	# save the data into a csv file
+	# make the folder if it doesn't exist
+	if not os.path.exists('data/stock_data/'):
+		os.makedirs('data/stock_data/')
+			
+	for code in stockPriceData:
+		file_name = "data/stock_data/" + code + ".csv"
+		log_file.write(str(dt.datetime.now()) + " Writing data for " + code + "\n")
+		with open(file_name, 'wb') as csvfile:
+			writer = csv.writer(csvfile, delimiter=',')
+			for row in stockPriceData[code]:
+				writer.writerow(row)
+
+def init_single_new_code(code, earliestDate, path, log_file):
+	## Intended for adding a new code to the watchlist
+	## This will be slow if doint the whole lot
+	log_file.write(str(dt.datetime.now()) + " Initalising historical data for the new code " + code + "\n")
+	stockPriceData = []
+	earliestYear = 2000
+	latestYear = dt.date.today().year() + 1
+	dates = []
+	for year in xrange(earliestYear, latestYear):
+		for month in xrange(1,13):
+			for day in xrange(1,32):
+				dates.append(year * 10000 + month * 100 + day)
+
+	for date in dates:
+		file_name = "data/raw_data/" + str(date) + ".txt"
+		if os.path.isfile(file_name):
+			with open(file_name, 'r') as file:
+				data_reader = csv.reader(file, dialect='excel')
+				for row in data_reader:
+					if row[0] == code:
+						stockPriceData.append(row[1:])
+
+			
+	log_file.write(str(dt.datetime.now()) + " Writing price data\n")
+	file_name = "data/stock_data/" + code + ".csv"
+	with open(file_name, 'w+') as csvfile:
+		writer = csv.writer(csvfile, delimiter=',')
+		for row in stockPriceData:
+			writer.writerow(row)
+
+	log_file.write(str(dt.datetime.now()) + " Initialising technical analysis data\n")
+	init_historical(code, earliestDate, path)
 
 def init_historical(code, earliestDate, path):
 	stockPriceData = []

@@ -9,9 +9,12 @@ import os
 import urllib
 import zipfile
 import shutil
-import signals
 import Tkinter as tk
 import ttk
+
+import signals
+import init
+
 
 NORM_FONT 		= ("Verdana", 10) # Font for popups
 
@@ -38,40 +41,44 @@ def scan(codes, path, log_file):
 		
 		elif last_entry[0] < dt.date.today().strftime ("%Y%m%d"): # make sure we're adding the next date
 
-			log_file.write(str(dt.datetime.now()) + " Retrieving data\n")
-			page = bigcharts_url + code + bigcharts_extra
-			log_file.write(str(dt.datetime.now()) + " " + page + "\n")
-			response = requests.get(page)
-			html = response.content
-			soup = BeautifulSoup(html, "xml")
-			table = soup.find('table', id="quote")
+			try:
+				log_file.write(str(dt.datetime.now()) + " Retrieving data\n")
+				page = bigcharts_url + code + bigcharts_extra
+				log_file.write(str(dt.datetime.now()) + " " + page + "\n")
+				response = requests.get(page)
+				html = response.content
+				soup = BeautifulSoup(html, "xml")
+				table = soup.find('table', id="quote")
 
-			temp_data = []
-			for row in table.findAll('tr'):
-				for cell in row.findAll('td'):
-					temp_data.append(cell.text)
-			
-			# clean the data according to how the website presented it
-			date = temp_data[1].split(' ')[0]
-			open_p = temp_data[9].split('\n')[2]
-			high = temp_data[10].split('\n')[2]
-			low = temp_data[11].split('\n')[2]
-			close = temp_data[7].split('\n')[2]
-			vol = temp_data[12].split('\n')[2].replace(',', '')
+				temp_data = []
+				for row in table.findAll('tr'):
+					for cell in row.findAll('td'):
+						temp_data.append(cell.text)
+				
+				# clean the data according to how the website presented it
+				date = temp_data[1].split(' ')[0]
+				open_p = temp_data[9].split('\n')[2]
+				high = temp_data[10].split('\n')[2]
+				low = temp_data[11].split('\n')[2]
+				close = temp_data[7].split('\n')[2]
+				vol = temp_data[12].split('\n')[2].replace(',', '')
 
-			[month,day,year] = date.split('/')
-			proper_date = year + month.zfill(2) + day.zfill(2)
+				[month,day,year] = date.split('/')
+				proper_date = year + month.zfill(2) + day.zfill(2)
 
-			# all neatly tabulated ready for writing
-			eod_data = [proper_date, open_p, high, low, close, vol]
+				# all neatly tabulated ready for writing
+				eod_data = [proper_date, open_p, high, low, close, vol]
 
-			# write the data to file
-			log_file.write(str(dt.datetime.now()) + " Writing data\n")
-			with open(file_name, 'a') as csvfile:
-				writer = csv.writer(csvfile, delimiter=',')
-				writer.writerow(eod_data)
+				# write the data to file
+				log_file.write(str(dt.datetime.now()) + " Writing data\n")
+				with open(file_name, 'a') as csvfile:
+					writer = csv.writer(csvfile, delimiter=',')
+					writer.writerow(eod_data)
 
-			log_file.write(str(dt.datetime.now()) + " Retrieval complete\n")
+				log_file.write(str(dt.datetime.now()) + " Retrieval complete\n")
+			except:
+				log_file.write(str(dt.datetime.now()) + " There was an issue retrieving EoD data for " + code +"\n")
+
 		else:
 
 			log_file.write(str(dt.datetime.now()) + " Something has gone wrong, we appear to be adding old data.\n")
@@ -252,8 +259,29 @@ def get_historical(log_file):
 		    shutil.move(os.path.join(root, subd, filename), os.path.join(root, filename))
 		os.rmdir(root + subd)
 		log_file.write(str(dt.datetime.now()) + "Download successful")
+
 	except:
 		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
+		popupmsg('Auto Download', "Auto Download didn't work mate, try it manually " +  dl_location)
+
+def check_for_watch_list_change(old_codes, watch_list, earliestDate, path, log_file):
+	# Checks for changes to the watchlist and initialises any new codes
+	# Can delete unwanted data, but doesn't do it yet
+	new_codes = get_codes(watch_list)
+	remove_list = []
+	add_list = []
+	for code in old_codes:
+		if code not in new_codes:
+			remove_list.append(code)
+
+	for code in new_codes:
+		if code not in old_codes:
+			add_list.append(code)
+
+	for code in add_list:
+		init.init_single_new_code(code, earliestDate, path, log_file):
+
+	return new_codes
 
 def notify_of_signals(codes, path, sig_log_file):
 	all_signals = signals.check_for_new_signals(codes, path)

@@ -1,14 +1,12 @@
 TO DO LIST
 
-- Make it handle new codes add to watchlist
-	- Have to wait until Monday before new analysis can happen unless filled in manually
 - Set up genentic algorithm
 - Make more meaningful signals
 - Make a guide
 - When signals occur plot a chart (Low Priority, but would be super cool)
-- Fix up initialise approach with tech.py
 - Re think stroing all the data
 - New signal: Bollinger bands have action like BSL, narrowing -> buy or sell
 
-- When adding new files from the asxhistoricaldata.com page, need to update only the stocks we haven't been watching
-- If a new code gets added to watchlist, only start it on a Sunday after historical data added
+- Finish off launch procedure and test
+- Make all file paths global variables
+- Make messages into a new file
