@@ -4,6 +4,8 @@ import datetime as dt
 import os
 import csv
 
+from global_vars import *
+
 
 def check_for_new_signals(codes, path):
 	# Make a list of signal generating functions and loop through it

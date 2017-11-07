@@ -5,6 +5,8 @@ import eod
 import os
 import zipfile
 
+from global_vars import * #Import the fixed global variables, like file paths etc.
+
 # Need to specify full paths for supervisord otherwise get errors
 path 			= "/Users/phillipbrown/scando/"
 log_file 		= path + 'logs/scando.log'
@@ -23,8 +25,8 @@ while(True):
 
 	if day < 5 and hour > 16 and checked_date < date: # if we're on a weekday after 5pm and we haven't updated already
 		
-		lf = open(log_file,'a+')
-		siglf = open(siglog, 'a+')
+		lf = open(LOG_FILE,'a+')
+		siglf = open(SIG_LOG, 'a+')
 		
 		
 		eod.scan(codes, path, lf)

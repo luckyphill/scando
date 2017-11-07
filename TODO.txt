@@ -8,5 +8,5 @@ TO DO LIST
 - New signal: Bollinger bands have action like BSL, narrowing -> buy or sell
 
 - Finish off launch procedure and test
-- Make all file paths global variables
-- Make messages into a new file
+- Make all file paths global variables (new module, then using namespace)
+- Make messages into a new module

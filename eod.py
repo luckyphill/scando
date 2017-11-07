@@ -9,11 +9,12 @@ import os
 import urllib
 import zipfile
 import shutil
-import Tkinter as tk
-import ttk
 
 import signals
 import init
+import messages
+
+from global_vars import *
 
 
 NORM_FONT 		= ("Verdana", 10) # Font for popups
@@ -295,14 +296,7 @@ def notify_of_signals(codes, path, sig_log_file):
 			
 			popupmsg(code, signal_message)
 
-def popupmsg(code, msg):
-    popup = tk.Tk()
-    popup.wm_title("Scando: " + code + " activity")
-    label = ttk.Label(popup, text=msg, font=NORM_FONT)
-    label.pack(side="top", fill="x", pady=10)
-    B1 = ttk.Button(popup, text="Cheers bro", command = popup.destroy)
-    B1.pack()
-    popup.mainloop()
+
 
 
 #=============================================================================

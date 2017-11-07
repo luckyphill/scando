@@ -8,6 +8,8 @@ import numpy as np
 import os.path
 import datetime as dt
 
+from global_vars import *
+
 def launch_proceedure(earliestDate, watchlist, path, log_file):
 	#checks that everything is ready to go on program launch
 
@@ -18,7 +20,7 @@ def launch_proceedure(earliestDate, watchlist, path, log_file):
 	# if there is no folder path + "data/" then we've got big problems and program can't run
 	# if there is not data in data/stock_data/ then run full initialisation
 	
-	todays_date = dt.date.today().strftime("%Y%m%d")
+	todays_date = dt.date.today()
 
 	codes = []
 	with open(watch_list, 'rU') as csvfile:
@@ -26,26 +28,29 @@ def launch_proceedure(earliestDate, watchlist, path, log_file):
 		for code in codes_reader:
 			codes.append(code[0])
 
-	if not os.path.exists(path + "data/stock_data"):
-		os.makedirs(path + "data/stock_data")
+	if not os.path.exists(path + "data/stock_data/"):
+		os.makedirs(path + "data/stock_data/")
 	
-	if not os.listdir(path + "data/stock_data"):
+	if not os.listdir(path + "data/stock_data/"):
 		log_file.write(str(dt.datetime.now()) + " No data exists, performing full initialisation\n")
 		init_all_codes(code, earliestDate, path, log_file)
 
 
 	for code in codes:
 		# check each code and see if the data is up to date
-		file_name = path + "data/stock_data" + code + ".csv"
+		file_name = path + "data/stock_data/" + code + ".csv"
 		if os.path.isfile(file_name):
 			with open(file_name, 'r') as file:
 				data_reader = csv.reader(file, dialect='excel')
-			most_recent_date = data_reader[-1][0]
-			# if the most recent data in the file is not up to date then we've got to wait until we've got the historical data on Sunday
-			# so remove the code from the list
-			if most_recent_date => todays_date - 1
+			temp_date = data_reader[-1][0]
+			most_recent_date = dt.date(temp_date[:4], temp_date[4:6], temp_date[6:]) # convert into datetime format
+
+			if most_recent_date < todays_date - dt.timedelta(1): # If too far behind
+				if not (most_recent_date.weekday() ==4 and todays_date.weekday()==0): # Unless Friday and Monday
+					#doesn't deal with special non trading days
+					codes.remove(code)
 		else:
-			# remove code, wait til the end of the week
+			codes.remove(code)
 
 	return codes
 
