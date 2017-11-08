@@ -8,42 +8,52 @@ import numpy as np
 import os.path
 import datetime as dt
 
+import messages
+
 from global_vars import *
 
-def launch_proceedure(earliestDate, watchlist, path, log_file):
-	#checks that everything is ready to go on program launch
-
-	#check that all the files for all the codes exist
-	#makes sure that data is up to date
-	#if it's not up to date, removes that code for the week
-	# returns the codes to check
-	# if there is no folder path + "data/" then we've got big problems and program can't run
-	# if there is not data in data/stock_data/ then run full initialisation
+def launch_procedure():
+	# Runs once when program is started
+	# This is designed to initialise everything from a very first startup,
+	# and deal with new codes if they are added while the program is down
 	
 	todays_date = dt.date.today()
 
 	codes = []
-	with open(watch_list, 'rU') as csvfile:
-		codes_reader = csv.reader(csvfile, dialect='excel')
-		for code in codes_reader:
-			codes.append(code[0])
+	if os.path.isfile(WATCH_FILE):
+		with open(WATCH_FILE, 'rU') as csvfile:
+			codes_reader = csv.reader(csvfile, dialect='excel')
+			for code in codes_reader:
+				codes.append(code[0])
+	else:
+		messages.popupmsg('ERROR', "You have no watch list. Make a file called 'watch_list.csv' and fill it with ASX codes first."):
+		sys.exit()
 
-	if not os.path.exists(path + "data/stock_data/"):
-		os.makedirs(path + "data/stock_data/")
+	if not codes:
+		messages.popupmsg('ERROR', "Your watch list is empty. Please add ASX codes, one to a line, all in capitals, then try again."):
+		sys.exit()
+
+	if not os.path.exists(STOCK_PATH):
+		os.makedirs(STOCK_PATH)
 	
-	if not os.listdir(path + "data/stock_data/"):
-		log_file.write(str(dt.datetime.now()) + " No data exists, performing full initialisation\n")
-		init_all_codes(code, earliestDate, path, log_file)
+	if not os.listdir(STOCK_PATH):
+		LOG.write(str(dt.datetime.now()) + " No data exists, performing full initialisation\n")
+		init_all_codes(codes)
 
 
+	# On start up, we want to check if the stock data is up to date
+	# If it's not then adding new EoD data will end up skipping previous days
+	# In that case, remove the code from 'codes'
+	# At the end of the week when the weekly update happens, everything will be fine and the code can be watched
 	for code in codes:
-		# check each code and see if the data is up to date
-		file_name = path + "data/stock_data/" + code + ".csv"
+		file_name = STOCK_PATH + code + ".csv"
 		if os.path.isfile(file_name):
 			with open(file_name, 'r') as file:
 				data_reader = csv.reader(file, dialect='excel')
-			temp_date = data_reader[-1][0]
-			most_recent_date = dt.date(temp_date[:4], temp_date[4:6], temp_date[6:]) # convert into datetime format
+				data_list = list(data_reader)
+			
+			temp_date = data_list[-1][0]
+			most_recent_date = dt.date(int(temp_date[:4]), int(temp_date[4:6]), int(temp_date[6:]))
 
 			if most_recent_date < todays_date - dt.timedelta(1): # If too far behind
 				if not (most_recent_date.weekday() ==4 and todays_date.weekday()==0): # Unless Friday and Monday
@@ -54,45 +64,44 @@ def launch_proceedure(earliestDate, watchlist, path, log_file):
 
 	return codes
 
-def init_all_codes(code, earliestDate, path, log_file):
-	log_file.write(str(dt.datetime.now()) + " Initalising historical data\n")
+def init_all_codes(codes):
+	LOG.write(str(dt.datetime.now()) + " Initalising historical data\n")
 	stockPriceData = []
-	earliestYear = 2000
 	latestYear = dt.date.today().year() + 1
 	dates = []
-	for year in xrange(earliestYear, latestYear):
+	for year in xrange(EARLIEST_YEAR, latestYear):
 		for month in xrange(1,13):
 			for day in xrange(1,32):
 				dates.append(year * 10000 + month * 100 + day)
 
 	for date in dates:
-		file_name = "data/raw_data/" + str(date) + ".txt"
+		file_name = RAW_PATH + str(date) + ".txt"
 		if os.path.isfile(file_name):
 			print "Reading data from " + str(date)
 			with open(file_name, 'r') as file:
 				data_reader = csv.reader(file, dialect='excel')
 				for row in data_reader:
-					if row[0] not in stockPriceData:
+					if row[0] not in stockPriceData and row[0] in codes:
 						stockPriceData[row[0]] = []
 					stockPriceData[row[0]].append(row[1:])
 
 	# save the data into a csv file
 	# make the folder if it doesn't exist
-	if not os.path.exists('data/stock_data/'):
-		os.makedirs('data/stock_data/')
+	if not os.path.exists(STOCK_PATH):
+		os.makedirs(STOCK_PATH)
 			
 	for code in stockPriceData:
-		file_name = "data/stock_data/" + code + ".csv"
-		log_file.write(str(dt.datetime.now()) + " Writing data for " + code + "\n")
+		file_name = STOCK_PATH + code + ".csv"
+		LOG.write(str(dt.datetime.now()) + " Writing data for " + code + "\n")
 		with open(file_name, 'wb') as csvfile:
 			writer = csv.writer(csvfile, delimiter=',')
 			for row in stockPriceData[code]:
 				writer.writerow(row)
 
-def init_single_new_code(code, earliestDate, path, log_file):
+def init_single_new_code(code):
 	## Intended for adding a new code to the watchlist
 	## This will be slow if doint the whole lot
-	log_file.write(str(dt.datetime.now()) + " Initalising historical data for the new code " + code + "\n")
+	LOG.write(str(dt.datetime.now()) + " Initalising historical data for the new code " + code + "\n")
 	stockPriceData = []
 	earliestYear = 2000
 	latestYear = dt.date.today().year() + 1
@@ -103,7 +112,7 @@ def init_single_new_code(code, earliestDate, path, log_file):
 				dates.append(year * 10000 + month * 100 + day)
 
 	for date in dates:
-		file_name = "data/raw_data/" + str(date) + ".txt"
+		file_name = RAW_PATH + str(date) + ".txt"
 		if os.path.isfile(file_name):
 			with open(file_name, 'r') as file:
 				data_reader = csv.reader(file, dialect='excel')
@@ -112,53 +121,53 @@ def init_single_new_code(code, earliestDate, path, log_file):
 						stockPriceData.append(row[1:])
 
 			
-	log_file.write(str(dt.datetime.now()) + " Writing price data\n")
-	file_name = "data/stock_data/" + code + ".csv"
+	LOG.write(str(dt.datetime.now()) + " Writing price data\n")
+	file_name = STOCK_PATH + code + ".csv"
 	with open(file_name, 'w+') as csvfile:
 		writer = csv.writer(csvfile, delimiter=',')
 		for row in stockPriceData:
 			writer.writerow(row)
 
-	log_file.write(str(dt.datetime.now()) + " Initialising technical analysis data\n")
-	init_historical(code, earliestDate, path)
+	LOG.write(str(dt.datetime.now()) + " Initialising technical analysis data\n")
+	init_historical(code)
 
-def init_historical(code, earliestDate, path):
+def init_historical(code):
 	stockPriceData = []
-	file_name = path + "data/stock_data/" + code + ".csv"
+	file_name = path + STOCK_PATH + code + ".csv"
 	with open(file_name, 'rU') as csvfile:
 		data_reader = csv.reader(csvfile, dialect='excel')
 		for data in data_reader:
 			if data[0] > earliestDate:
 				stockPriceData.append(data)
 
-	rsi_path = path + "data/rsi_data/"
-	if not os.path.exists(rsi_path):
-		os.makedirs(rsi_path)
+	RSI_PATH = path + "data/rsi_data/"
+	if not os.path.exists(RSI_PATH):
+		os.makedirs(RSI_PATH)
 	
-	bollinger_path = path + "data/bollinger_data/"
-	if not os.path.exists(bollinger_path):
-		os.makedirs(bollinger_path)
+	BOL_PATH = path + "data/bollinger_data/"
+	if not os.path.exists(BOL_PATH):
+		os.makedirs(BOL_PATH)
 
 	period_short = 9
 	period_long = 21
-	ema921_path = path + "data/ema921_data/"
-	if not os.path.exists(ema921_path):
-		os.makedirs(ema921_path)
+	EMA921_PATH = path + "data/ema921_data/"
+	if not os.path.exists(EMA921_PATH):
+		os.makedirs(EMA921_PATH)
 
 	period_short = 12
 	period_long = 26
 	period_signal = 9
-	macd_path = path + "data/macd_data/"
-	if not os.path.exists(macd_path):
-		os.makedirs(macd_path)
+	MACD_PATH = path + "data/macd_data/"
+	if not os.path.exists(MACD_PATH):
+		os.makedirs(MACD_PATH)
 
 
-	init_rsi(code, stockPriceData, rsi_path)
-	init_bol(code, stockPriceData, bollinger_path)
-	init_ema921(code, period_short, period_long, stockPriceData, ema921_path)
-	init_macd(code, period_short, period_long, period_signal, stockPriceData, macd_path)
+	init_rsi(code, stockPriceData)
+	init_bol(code, stockPriceData)
+	init_ema921(code, period_short, period_long, stockPriceData)
+	init_macd(code, period_short, period_long, period_signal, stockPriceData)
 
-def init_rsi(code, stockPriceData, path):
+def init_rsi(code, stockPriceData):
 	#RSI
 	# Data is stored Date,Up_smma,Down_smma,RSI
 	rsiData 		= []
@@ -178,10 +187,10 @@ def init_rsi(code, stockPriceData, path):
 	rsi_time_data 	= zip(dates, up_smma, down_smma,rsiData)
 	
 	print "Writing RSI data for " + code
-	file_name 		= path + code + ".csv"
+	file_name 		= RSI_PATH + code + ".csv"
 	write_init_data(file_name, rsi_time_data, [period])
 
-def init_bol(code, stockPriceData, path):
+def init_bol(code, stockPriceData):
 	#Bollinger Bands
 
 	bollingerData 		= {}
@@ -205,10 +214,10 @@ def init_bol(code, stockPriceData, path):
 	bollinger_time_data = zip(dates, lower, x_smma, upper)
 
 	print "Writing Bollinger data for " + code
-	file_name 		= path + code + ".csv"
+	file_name 		= BOL_PATH + code + ".csv"
 	write_init_data(file_name, bollinger_time_data, [period, K])
 
-def init_ema(code, period, stockPriceData, path):
+def init_ema(code, period, stockPriceData):
 	# EMA for a given period
 
 	emaData = []
@@ -222,7 +231,7 @@ def init_ema(code, period, stockPriceData, path):
 	file_name 		= path + code + ".csv"
 	write_init_data(file_name, ema_time_data, [period])
 
-def init_ema921(code, period_short, period_long, stockPriceData, path):
+def init_ema921(code, period_short, period_long, stockPriceData):
 	emaShortData = []
 	emaLongData = []
 
@@ -236,10 +245,10 @@ def init_ema921(code, period_short, period_long, stockPriceData, path):
 	ema921_time_data 	= zip(dates, emaShortData, emaLongData , crossData)
 
 	print "Writing 9-21 EMA crossover data for " + code
-	file_name 		= path + code + ".csv"
+	file_name 		= EMA921_PATH + code + ".csv"
 	write_init_data(file_name, ema921_time_data, [period_short, period_long])
 
-def init_macd(code, period_short, period_long, period_signal, stockPriceData, path):
+def init_macd(code, period_short, period_long, period_signal, stockPriceData):
 	emaShortData = []
 	emaLongData = []
 	emaSignalData = []
@@ -260,7 +269,7 @@ def init_macd(code, period_short, period_long, period_signal, stockPriceData, pa
 	macd_time_data 	= zip(dates, emaShortData[short_start:], emaLongData, emaSignalData[sig_start:], macdLine, macdHist)
 
 	print "Writing MACD data for " + code
-	file_name 		= path + code + ".csv"
+	file_name 		= MACD_PATH + code + ".csv"
 	write_init_data(file_name, macd_time_data, [period_short, period_long, period_signal])
 
 def write_init_data(file_name, data, parameters):

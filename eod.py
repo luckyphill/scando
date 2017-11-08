@@ -17,19 +17,13 @@ import messages
 from global_vars import *
 
 
-NORM_FONT 		= ("Verdana", 10) # Font for popups
-
-
-def scan(codes, path, log_file):
+def scan(codes):
 	# Scans the website http://bigcharts.marketwatch.com for the latest EoD data
 
-	bigcharts_url = 'http://bigcharts.marketwatch.com/quickchart/quickchart.asp?symb=AU%3A'
-	bigcharts_extra = '&insttype=Stock&freq=1&show=&time=8'
-
 	for code in codes:
-		log_file.write(str(dt.datetime.now()) + " Checking current data for " + code + "\n")
+		LOG.write(str(dt.datetime.now()) + " Checking current data for " + code + "\n")
 		
-		file_name = path + "data/stock_data/" + code + ".csv"
+		file_name = STOCK_PATH + code + ".csv"
 
 		with open(file_name, 'r') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',')
@@ -38,14 +32,14 @@ def scan(codes, path, log_file):
 
 		if last_entry[0] == dt.date.today().strftime ("%Y%m%d"): # make sure we haven't already got today's data
 			
-			log_file.write(str(dt.datetime.now()) + " Data appears to be up to date.\n")
+			LOG.write(str(dt.datetime.now()) + " Data appears to be up to date.\n")
 		
 		elif last_entry[0] < dt.date.today().strftime ("%Y%m%d"): # make sure we're adding the next date
 
 			try:
-				log_file.write(str(dt.datetime.now()) + " Retrieving data\n")
-				page = bigcharts_url + code + bigcharts_extra
-				log_file.write(str(dt.datetime.now()) + " " + page + "\n")
+				LOG.write(str(dt.datetime.now()) + " Retrieving data\n")
+				page = URL_EOD + code + URL_EOD_END
+				LOG.write(str(dt.datetime.now()) + " " + page + "\n")
 				response = requests.get(page)
 				html = response.content
 				soup = BeautifulSoup(html, "xml")
@@ -71,29 +65,29 @@ def scan(codes, path, log_file):
 				eod_data = [proper_date, open_p, high, low, close, vol]
 
 				# write the data to file
-				log_file.write(str(dt.datetime.now()) + " Writing data\n")
+				LOG.write(str(dt.datetime.now()) + " Writing data\n")
 				with open(file_name, 'a') as csvfile:
 					writer = csv.writer(csvfile, delimiter=',')
 					writer.writerow(eod_data)
 
-				log_file.write(str(dt.datetime.now()) + " Retrieval complete\n")
+				LOG.write(str(dt.datetime.now()) + " Retrieval complete\n")
 			except:
-				log_file.write(str(dt.datetime.now()) + " There was an issue retrieving EoD data for " + code +"\n")
+				LOG.write(str(dt.datetime.now()) + " There was an issue retrieving EoD data for " + code +"\n")
 
 		else:
 
-			log_file.write(str(dt.datetime.now()) + " Something has gone wrong, we appear to be adding old data.\n")
+			LOG.write(str(dt.datetime.now()) + " Something has gone wrong, we appear to be adding old data.\n")
 
-def tech_update(codes, path, log_file):
+def tech_update(codes):
 	# Updates the technical analysis data files given the new data
 	# In this function we are assuming that stock data is complete and accurate
 
 	for code in codes:
 		
-		rsi_file = path + "data/rsi_data/" + code + ".csv"
-		bollinger_file = path + "data/bollinger_data/" + code + ".csv"
-		ema921_file = path + "data/ema921_data/" + code + ".csv"
-		quote_file = path + "data/stock_data/" + code + ".csv"
+		rsi_file = RSI_PATH + code + ".csv"
+		bollinger_file = BOL_PATH + code + ".csv"
+		ema921_file = EMA921_PATH + code + ".csv"
+		quote_file = STOCK_PATH + code + ".csv"
 
 		with open(quote_file, 'r') as f:
 			quote_reader = csv.reader(f, delimiter=',')
@@ -108,36 +102,37 @@ def tech_update(codes, path, log_file):
 			analysis_function = analysis_type[1]
 			analysis_file = analysis_type[2]
 
-			update(code, quote_list, analysis_name, analysis_function, analysis_file, log_file)
+			update(code, quote_list, analysis_name, analysis_function, analysis_file)
 		
 	# for each code, we want to look at the latest data and update the technical ananlysis files
 	# at the moment we have RSI and Bollinger bands
 
-def clean_log(log_file, log_size_limit):
-	if (os.path.getsize(log_file) > log_size_limit):
+def clean_log():
+	# This is buggy, need to fix
+	if (os.path.getsize(LOG) > log_size_limit):
 		
-		with open(log_file,'r') as lf, open("temp.log" ,"w") as out:
+		with open(LOG,'r') as lf, open("temp.log" ,"w") as out:
 			#only write the last half
-			lf.seek(int(log_size_limit/2))
+			lf.seek(int(LOG_SIZE_LIMIT/2))
 			for line in lf:
 				out.write(line)
 
-		os.remove(log_file)
-		os.rename("temp.log", log_file)
+		os.remove(LOG)
+		os.rename("temp.log", LOG)
 
-def get_codes(watch_list):
+def get_codes():
 	# Takes a direct path to the watch_list file
 	codes = []
-	with open(watch_list, 'rU') as csvfile:
+	with open(WATCH_FILE, 'rU') as csvfile:
 		codes_reader = csv.reader(csvfile, dialect='excel')
 		for code in codes_reader:
 			codes.append(code[0])
 	return codes
 
-def update(code, quote_list, analysis_name, analysis_function, analysis_file, log_file):
+def update(code, quote_list, analysis_name, analysis_function, analysis_file):
 	# Update data for a given stock and a given analysis approach
 	latest_quote_date = quote_list[-1][0]
-	log_file.write(str(dt.datetime.now()) + " Updating " + analysis_name + " data for " + code + "\n")
+	LOG.write(str(dt.datetime.now()) + " Updating " + analysis_name + " data for " + code + "\n")
 	
 	with open(analysis_file, 'r') as f:
 		analysis_reader = csv.reader(f, delimiter=',')
@@ -146,12 +141,12 @@ def update(code, quote_list, analysis_name, analysis_function, analysis_file, lo
 	latest_analysis_date = analysis_prev_data[-1][0]
 
 	if  latest_quote_date == latest_analysis_date:
-		log_file.write(str(dt.datetime.now()) + " Data appears to be up to date\n")
+		LOG.write(str(dt.datetime.now()) + " Data appears to be up to date\n")
 	else:
 
 		new_data = analysis_function(quote_list, analysis_prev_data)
 
-		log_file.write(str(dt.datetime.now()) + " Writing data\n")
+		LOG.write(str(dt.datetime.now()) + " Writing data\n")
 		with open(analysis_file, 'a') as f:
 			analysis_writer = csv.writer(f, delimiter=',')
 			analysis_writer.writerow(new_data)
@@ -229,20 +224,19 @@ def ema921_new_data(quote_list, ema921_prev_data):
 
 	return [latest_quote_date, ema921_short, ema921_long, cross_hist]
 
-def get_historical(log_file):
-	data_page = 'https://www.asxhistoricaldata.com/data/'
-	date = dt.date.today()#.strftime("%Y%m%d")
-	# We're going to assume it's a sunday
+def get_historical():
+	# This is only meant to run on a Sunday
+	date = dt.date.today()
 	date = date - dt.timedelta(2)
 	file_name = 'week' + date.strftime("%Y%m%d") + ".zip"
-	dl_location = data_page + file_name
+	dl_location = URL_HISTORICAL + file_name
 	file_location = 'data/zip_data/' + file_name
 	
 	if not os.path.exists('data/zip_data/'):
 		os.makedirs('data/zip_data/')
 
 	try:
-		log_file.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d")) 
+		LOG.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d")) 
 		urllib.urlretrieve (dl_location, file_location)
 
 		zip_ref = zipfile.ZipFile(file_location, 'r')
@@ -250,7 +244,7 @@ def get_historical(log_file):
 		if not os.path.exists(extract_location):
 			os.makedirs(extract_location)
 
-		log_file.write(str(dt.datetime.now()) + "Unzipping new data")
+		LOG.write(str(dt.datetime.now()) + "Unzipping new data")
 		zip_ref.extractall(extract_location)
 		zip_ref.close()
 
@@ -259,16 +253,16 @@ def get_historical(log_file):
 		for filename in os.listdir(os.path.join(root, subd)):
 		    shutil.move(os.path.join(root, subd, filename), os.path.join(root, filename))
 		os.rmdir(root + subd)
-		log_file.write(str(dt.datetime.now()) + "Download successful")
+		LOG.write(str(dt.datetime.now()) + "Download successful")
 
 	except:
-		log_file.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
+		LOG.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
 		popupmsg('Auto Download', "Auto Download didn't work mate, try it manually " +  dl_location)
 
-def check_for_watch_list_change(old_codes, watch_list, earliestDate, path, log_file):
+def check_for_watch_list_change(old_codes):
 	# Checks for changes to the watchlist and initialises any new codes
 	# Can delete unwanted data, but doesn't do it yet
-	new_codes = get_codes(watch_list)
+	new_codes = get_codes()
 	remove_list = []
 	add_list = []
 	for code in old_codes:
@@ -280,21 +274,21 @@ def check_for_watch_list_change(old_codes, watch_list, earliestDate, path, log_f
 			add_list.append(code)
 
 	for code in add_list:
-		init.init_single_new_code(code, earliestDate, path, log_file):
+		init.init_single_new_code(code)
 
 	return new_codes
 
-def notify_of_signals(codes, path, sig_log_file):
-	all_signals = signals.check_for_new_signals(codes, path)
+def notify_of_signals(codes):
+	all_signals = signals.check_for_new_signals(codes)
 	for code in codes:
 		if code in all_signals:
 			signals_for_code = all_signals[code]
 			signal_message = ''
 			for signal in signals_for_code:
-				sig_log_file.write(str(dt.datetime.now()) + " " + signal + "\n")
+				LOG_SIG.write(str(dt.datetime.now()) + " " + signal + "\n")
 				signal_message = signal_message + "\n" + signal
 			
-			popupmsg(code, signal_message)
+			messages.popupmsg(code, signal_message)
 
 
 
@@ -308,7 +302,7 @@ def notify_of_signals(codes, path, sig_log_file):
 # page_detail = '.AX'
 # for code in codes:
 # 	page = home_url + code + page_detail
-# 	log_file.write(str(dt.datetime.now()) + p age
+# 	LOG.write(str(dt.datetime.now()) + p age
 # 	response = requests.get(page)
 # 	html = response.content
 # 	soup = BeautifulSoup(html, "xml")

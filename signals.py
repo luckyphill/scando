@@ -7,30 +7,27 @@ import csv
 from global_vars import *
 
 
-def check_for_new_signals(codes, path):
+def check_for_new_signals(codes):
 	# Make a list of signal generating functions and loop through it
-	dead_cat_path = path + 'data/stock_data/'
-	rsi_path = path + 'data/rsi_data/'
-	ema921_path = path + 'data/ema921_data/'
 
 	signals_output = {} # A dictionary of signals for each stock
 	for code in codes:
 		#collect the data
 		dead_cat_data = []
-		with open(dead_cat_path + code + ".csv") as f:
+		with open(STOCK_PATH + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
 				dead_cat_data.append(float(line[4]))
 
 		rsi_data = []
-		with open(rsi_path + code + ".csv") as f:
+		with open(RSI_PATH + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
 				if len(line) > 1: # First line has parameters
 					rsi_data.append(float(line[3]))
 		 
 		ema921_data = []
-		with open(ema921_path + code + ".csv") as f:
+		with open(EMA921_PATH + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
 				ema921_data.append(float(line[1]))
