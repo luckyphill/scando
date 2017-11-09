@@ -25,6 +25,7 @@ while(True):
 		eod.scan(codes)
 		eod.tech_update(codes)
 		eod.notify_of_signals(codes)
+		codes = eod.check_for_watch_list_removals(codes)
 		
 		LOG.write(str(dt.datetime.now()) + " Done for the day, sleeping...\n")
 
@@ -35,8 +36,8 @@ while(True):
 	if day == 6 and hour > 16 and dl_checked_date < date:
 		# See if we can update the historical data automatically
 		# It has worked, but it might not forever
-		eod.get_historical(lf)
-		codes = eod.check_for_watch_list_change(codes)
+		eod.get_historical()
+		codes = eod.check_for_watch_list_additions(codes)
 		dl_checked_date = date
 	
 		

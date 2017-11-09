@@ -12,6 +12,7 @@ def check_for_new_signals(codes):
 
 	signals_output = {} # A dictionary of signals for each stock
 	for code in codes:
+		LOG.write(str(dt.datetime.now()) + " Checking for signals from " + code + "\n")
 		#collect the data
 		dead_cat_data = []
 		with open(STOCK_PATH + code + ".csv") as f:

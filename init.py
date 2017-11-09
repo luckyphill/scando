@@ -26,11 +26,11 @@ def launch_procedure():
 			for code in codes_reader:
 				codes.append(code[0])
 	else:
-		messages.popupmsg('ERROR', "You have no watch list. Make a file called 'watch_list.csv' and fill it with ASX codes first."):
+		messages.popupmsg('ERROR', "You have no watch list. Make a file called 'watch_list.csv' and fill it with ASX codes first.")
 		sys.exit()
 
 	if not codes:
-		messages.popupmsg('ERROR', "Your watch list is empty. Please add ASX codes, one to a line, all in capitals, then try again."):
+		messages.popupmsg('ERROR', "Your watch list is empty. Please add ASX codes, one to a line, all in capitals, then try again.")
 		sys.exit()
 
 	if not os.path.exists(STOCK_PATH):

@@ -33,9 +33,10 @@ URL_HISTORICAL = 'https://www.asxhistoricaldata.com/data/'
 EARLIEST_DATE = 20000101
 EARLIEST_YEAR = 2000
 LOG_SIZE_LIMIT = 1000000
+BUFFER_SIZE = 0
 NORM_FONT 		= ("Verdana", 10)
 
 #==================================================================
 # Log file pointers
-LOG = open(LOG_FILE,'a+')
-LOG_SIG = open(SIG_LOG,'a+')
+LOG = open(LOG_FILE,'a+',BUFFER_SIZE) 
+LOG_SIG = open(SIG_LOG,'a+',BUFFER_SIZE)

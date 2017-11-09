@@ -108,17 +108,21 @@ def tech_update(codes):
 	# at the moment we have RSI and Bollinger bands
 
 def clean_log():
-	# This is buggy, need to fix
-	if (os.path.getsize(LOG) > log_size_limit):
-		
-		with open(LOG,'r') as lf, open("temp.log" ,"w") as out:
+	# This is the only function that is allowed to modify a global variable
+	# Ought to investigate best practive for something like this
+	global LOG
+	LOG.write(str(dt.datetime.now()) + " Cleaning logs\n")
+	LOG.close()
+	if (os.path.getsize(LOG_FILE) > LOG_SIZE_LIMIT):
+		with open(LOG_FILE,'r') as lf, open("temp.log" ,"w") as out:
 			#only write the last half
 			lf.seek(int(LOG_SIZE_LIMIT/2))
 			for line in lf:
 				out.write(line)
 
-		os.remove(LOG)
-		os.rename("temp.log", LOG)
+		os.remove(LOG_FILE)
+		os.rename("temp.log", LOG_FILE)
+	LOG = open(LOG_FILE,'a+',BUFFER_SIZE) 
 
 def get_codes():
 	# Takes a direct path to the watch_list file
@@ -259,7 +263,7 @@ def get_historical():
 		LOG.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
 		popupmsg('Auto Download', "Auto Download didn't work mate, try it manually " +  dl_location)
 
-def check_for_watch_list_change(old_codes):
+def check_for_watch_list_additions(old_codes):
 	# Checks for changes to the watchlist and initialises any new codes
 	# Can delete unwanted data, but doesn't do it yet
 	new_codes = get_codes()
@@ -278,17 +282,32 @@ def check_for_watch_list_change(old_codes):
 
 	return new_codes
 
+def check_for_watch_list_removals(old_codes):
+	# Checks for changes to the watchlist and initialises any new codes
+	# Can delete unwanted data, but doesn't do it yet
+	watch_list = get_codes()
+	remove_list = []
+	for code in old_codes:
+		if code not in watch_list:
+			remove_list.append(code)
+
+	for code in remove_list:
+		if code in old_codes:
+			LOG.write(str(dt.datetime.now()) + " No longer collecting EoD data for " + code + "\n")
+			old_codes.remove(code)
+	
+	return old_codes
+
 def notify_of_signals(codes):
 	all_signals = signals.check_for_new_signals(codes)
-	for code in codes:
-		if code in all_signals:
-			signals_for_code = all_signals[code]
-			signal_message = ''
-			for signal in signals_for_code:
-				LOG_SIG.write(str(dt.datetime.now()) + " " + signal + "\n")
-				signal_message = signal_message + "\n" + signal
-			
-			messages.popupmsg(code, signal_message)
+	for code in all_signals:
+		signals_for_code = all_signals[code]
+		signal_message = ''
+		for signal in signals_for_code:
+			LOG_SIG.write(str(dt.datetime.now()) + " " + signal + "\n")
+			signal_message = signal_message + "\n" + signal
+		
+		messages.popupmsg(code, signal_message)
 
 
 
