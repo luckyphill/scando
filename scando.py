@@ -29,7 +29,7 @@ while(True):
 		
 		LOG.write(str(dt.datetime.now()) + " Done for the day, sleeping...\n")
 
-		#eod.clean_log()
+		eod.clean_log()
 
 		checked_date = date
 	

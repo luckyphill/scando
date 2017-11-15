@@ -104,7 +104,7 @@ def init_single_new_code(code):
 	LOG.write(str(dt.datetime.now()) + " Initalising historical data for the new code " + code + "\n")
 	stockPriceData = []
 	earliestYear = 2000
-	latestYear = dt.date.today().year() + 1
+	latestYear = dt.date.today().year + 1
 	dates = []
 	for year in xrange(earliestYear, latestYear):
 		for month in xrange(1,13):

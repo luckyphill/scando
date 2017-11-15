@@ -240,7 +240,7 @@ def get_historical():
 		os.makedirs('data/zip_data/')
 
 	try:
-		LOG.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d")) 
+		LOG.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d" + "\n")) 
 		urllib.urlretrieve (dl_location, file_location)
 
 		zip_ref = zipfile.ZipFile(file_location, 'r')
@@ -261,7 +261,7 @@ def get_historical():
 
 	except:
 		LOG.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
-		popupmsg('Auto Download', "Auto Download didn't work mate, try it manually " +  dl_location)
+		messages.popupmsg('Auto Download', "Auto Download didn't work mate, try it manually " +  dl_location)
 
 def check_for_watch_list_additions(old_codes):
 	# Checks for changes to the watchlist and initialises any new codes
