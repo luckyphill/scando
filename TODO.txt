@@ -1,5 +1,6 @@
 TO DO LIST
 
+- RSI updater doesn't work - the calculations are converging to 50
 - Set up genentic algorithm
 - Make more meaningful signals
 - Make a guide

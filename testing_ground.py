@@ -8,6 +8,7 @@ import init
 import signals
 import Tkinter as tk
 import ttk
+from global_vars import *
 
 
 # Need to specify full paths for supervisord otherwise get errors
@@ -19,20 +20,12 @@ lf 				= open(log_file, 'a+')
 siglf 			= open(siglog, 'a+')
 earliestDate 	= 20000101
 num_days		= 10 #testing variable
-NORM_FONT 		= ("Verdana", 10)
+
 # This is purely for testing new functions/process/data handling etc.
 # SHOULD NOT BE USED FOR GA TRAINING!!!!!!!!
-# All testing will be done with a phantom company with code TEST
-# Data for TEST comes from IFL
+# All testing will be done with a phantom company with code 1AA
+# Data for 1AA comes from IFL
 # New data is poached from ANZ
-def popupmsg(code, msg):
-    popup = tk.Tk()
-    popup.wm_title("Scando: " + code + " activity")
-    label = ttk.Label(popup, text=msg, font=NORM_FONT)
-    label.pack(side="top", fill="x", pady=10)
-    B1 = ttk.Button(popup, text="Cheers bro", command = popup.destroy)
-    B1.pack()
-    popup.mainloop()
 
 codes = ['1AA', 'ANZ'] # all testing done with code 1AA - this puts it at the top of the folder
 for code in codes:
@@ -60,6 +53,9 @@ for days in xrange(num_days):
 	#============================================================
 
 	eod.tech_update(codes, path, lf)
+
+
+signals.
 
 
 #================================================================

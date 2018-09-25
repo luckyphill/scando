@@ -56,7 +56,7 @@ def launch_procedure():
 			most_recent_date = dt.date(int(temp_date[:4]), int(temp_date[4:6]), int(temp_date[6:]))
 
 			if most_recent_date < todays_date - dt.timedelta(1): # If too far behind
-				if not (most_recent_date.weekday() ==4 and todays_date.weekday()==0): # Unless Friday and Monday
+				if not (most_recent_date.weekday() == 4 and todays_date.weekday()==0): # Unless Friday and Monday
 					#doesn't deal with special non trading days
 					codes.remove(code)
 		else:
@@ -100,7 +100,7 @@ def init_all_codes(codes):
 
 def init_single_new_code(code):
 	## Intended for adding a new code to the watchlist
-	## This will be slow if doint the whole lot
+	## This will be slow if doing the whole lot
 	LOG.write(str(dt.datetime.now()) + " Initalising historical data for the new code " + code + "\n")
 	stockPriceData = []
 	earliestYear = 2000

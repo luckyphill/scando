@@ -14,11 +14,11 @@ def check_for_new_signals(codes):
 	for code in codes:
 		LOG.write(str(dt.datetime.now()) + " Checking for signals from " + code + "\n")
 		#collect the data
-		dead_cat_data = []
+		previous_close_data = []
 		with open(STOCK_PATH + code + ".csv") as f:
 			data_reader = csv.reader(f, delimiter=',')
 			for line in data_reader:
-				dead_cat_data.append(float(line[4]))
+				previous_close_data.append(float(line[4]))
 
 		rsi_data = []
 		with open(RSI_PATH + code + ".csv") as f:
@@ -34,7 +34,7 @@ def check_for_new_signals(codes):
 				ema921_data.append(float(line[1]))
 
 
-		signals_list = [[dead_cat_bounce, dead_cat_data], [rsi_breaks, rsi_data], [ema921_crossover, ema921_data]]
+		signals_list = [[dead_cat_bounce, previous_close_data], [period_highs, previous_close_data], [rsi_breaks, rsi_data], [ema921_crossover, ema921_data]]
 
 		for signal in signals_list:
 			signal_generator 	= signal[0]
@@ -83,3 +83,27 @@ def ema921_crossover(code, ema921_data):
 		return code + " has EMA 9-21 changed to NEGATIVE"
 	else:
 		return False
+
+def period_highs(code, price_data):
+	## A simple signal that tells if the stock has reached a 1 week, 1 month, 6 month or 1 year high
+	last_close = price_data[-1]
+	days_highest = 0
+	for price in reversed(price_data[:-1]):
+		if last_close > price:
+			days_highest = days_highest +1
+		else:
+			break
+
+	if days_highest > 200:
+		return code + ' has hit a 200 day high'
+
+	if days_highest > 100:
+		return code + ' has hit a 100 day high'
+
+	if days_highest > 50:
+		return code + ' has hit a 50 day high'
+
+	if days_highest > 25:
+		return code + ' has hit a 25 day high'
+
+	return False

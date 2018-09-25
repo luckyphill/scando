@@ -240,7 +240,7 @@ def get_historical():
 		os.makedirs('data/zip_data/')
 
 	try:
-		LOG.write(str(dt.datetime.now()) + "Downloading historical data for week ending " + date.strftime("%Y%m%d" + "\n")) 
+		LOG.write(str(dt.datetime.now()) + " Downloading historical data for week ending " + date.strftime("%Y%m%d" + "\n")) 
 		urllib.urlretrieve (dl_location, file_location)
 
 		zip_ref = zipfile.ZipFile(file_location, 'r')
@@ -248,7 +248,7 @@ def get_historical():
 		if not os.path.exists(extract_location):
 			os.makedirs(extract_location)
 
-		LOG.write(str(dt.datetime.now()) + "Unzipping new data")
+		LOG.write(str(dt.datetime.now()) + " Unzipping new data\n")
 		zip_ref.extractall(extract_location)
 		zip_ref.close()
 
@@ -257,10 +257,10 @@ def get_historical():
 		for filename in os.listdir(os.path.join(root, subd)):
 		    shutil.move(os.path.join(root, subd, filename), os.path.join(root, filename))
 		os.rmdir(root + subd)
-		LOG.write(str(dt.datetime.now()) + "Download successful")
+		LOG.write(str(dt.datetime.now()) + "Download successful\n")
 
 	except:
-		LOG.write(str(dt.datetime.now()) + "Download failed, try manually downloading")
+		LOG.write(str(dt.datetime.now()) + "Download failed, try manually downloading\n")
 		messages.popupmsg('Auto Download', "Auto Download didn't work mate, try it manually " +  dl_location)
 
 def check_for_watch_list_additions(old_codes):
