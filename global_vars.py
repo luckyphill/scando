@@ -35,6 +35,7 @@ EARLIEST_YEAR 	= 2000
 LOG_SIZE_LIMIT 	= 1000000
 BUFFER_SIZE 	= 0
 NORM_FONT 		= ("Verdana", 10)
+VALUE_CUTOFF	= 500000				# The minimum 100 day trade value to consider adding a code to the watch list
 
 #==================================================================
 # Log file pointers

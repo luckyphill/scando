@@ -33,9 +33,10 @@ while(True):
 
 		checked_date = date
 	
-	if day == 6 and hour > 16 and dl_checked_date < date:
+	if day == 0 and hour > 14 and dl_checked_date < date:
 		# See if we can update the historical data automatically
 		# It has worked, but it might not forever
+		# Checks asxhistoricaldata at 2pm on monday
 		eod.get_historical()
 		codes = eod.check_for_watch_list_additions(codes)
 		dl_checked_date = date

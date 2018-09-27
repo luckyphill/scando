@@ -309,6 +309,71 @@ def notify_of_signals(codes):
 		
 		messages.popupmsg(code, signal_message)
 
+def check_radar(old_codes):
+	## Checks once a week to see if there are any stocks that have moved past the
+	## minimum trading value threshold
+
+	## First, make a list of all the companies trading according to asxhistoricaldata.com
+	all_codes = []
+
+	latest_file = os.listdir(RAW_PATH)[0]
+	for file in os.listdir(RAW_PATH)[1:]:
+		if file > latest_file:
+			latest_file = file
+
+	path_to_latest_file = RAW_PATH + latest_file
+
+	with open(path_to_latest_file, 'rU') as csvfile:
+		code_reader = csv.reader(csvfile, dialect='excel')
+		for code in code_reader:
+			all_codes.append(code[0])
+
+	## We now have a list of all the codes trading as of the last day's trade
+
+	## Now we want to calculate the 100 day average trading value
+
+	value_100_days = {}
+	## Read each file for the last 100 days, and store the traded value
+	for file in os.listdir(RAW_PATH)[-100:]:
+		path = RAW_PATH + file
+		
+		with open(path,'r') as csvfile:
+			raw_data_reader = csv.reader(csvfile)
+			
+			for data in raw_data_reader:
+				if data[0] in all_codes:
+					if data[0] not in volume_100_days:
+						value_100_days[data[0]] = []
+					## Traded value taken to be the volume * low price to give a conservative estimate
+					value_100_days[data[0]].append(  round( float(data[-1])*float(data[4]), 2 )  )
+
+	## Now calculate the average and populate the new watchlist
+	avg_value_100_days = {}
+	codes_above_limit = []
+	old_codes_below_limit = []
+
+	for code in all_codes:
+		avg_value_100_days[code] = np.mean(value_100_days[code])
+		## Grab codes peaking over the value cut-off limit
+		if avg_value_100_days[code] > VALUE_CUTOFF:
+			if code not in old_codes:
+				codes_above_limit.append(code)
+		## If a code drops below 90% of the limit, get rid of it, 
+		if avg_value_100_days[code] < 0.9 * VALUE_CUTOFF:
+			if code in old_codes:
+				old_codes_below_limit.append(code)
+
+	if codes_above_limit:
+		for code in codes_above_limit:
+			messages.popupmsg(code, code + ' has pushed through the 100 day average value cut-off. Adding to watch list.')
+			
+
+	if old_codes_below_limit:
+		for code in old_codes_below_limit:
+			messages.popupmsg(code, code + ' has dropped below 90\% of the 100 day average value cut-off. Removing from watch list.')
+
+
+	return codes_above_limit
 
 
 

@@ -55,9 +55,6 @@ for days in xrange(num_days):
 	eod.tech_update(codes, path, lf)
 
 
-signals.
-
-
 #================================================================
 # Testing signal output
 #codes = eod.get_codes(watch_list)
